@@ -25,15 +25,21 @@
         }
 
         /* 顶部区域 */
-        .top-area { padding: 25px 20px 0; display: flex; flex-direction: column; align-items: center; width: 100%; flex-shrink: 0; }
+        .top-area { padding: 25px 20px 0; display: flex; flex-direction: column; align-items: center; width: 100%; flex-shrink: 0; z-index: 2; }
         .top-msg { width: 100%; max-width: 100%; overflow: hidden; white-space: nowrap; background: rgba(0, 0, 0, 0.12); border-radius: 20px; padding: 8px 0; box-sizing: border-box; margin-bottom: 20px; }
         .scroll-text { display: inline-block; animation: scrollRightToLeft 12s linear infinite; padding: 0 10px; font-size: 13px; font-weight: 400; color: rgba(255, 255, 255, 0.9); }
         @keyframes scrollRightToLeft { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .brand-name { font-size: 34px; font-weight: 700; letter-spacing: 6px; margin-top: 10px; }
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 18px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-        /* 中心锁环区域 */
-        .lock-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -30px; }
+        /* ==========================================
+           核心修复 2：锁图标精准固定在屏幕垂直居中
+           ========================================== */
+        .lock-center {
+            position: absolute; top: 45%; left: 50%;
+            transform: translate(-50%, -50%); /* 使锁图标处于绝对正中心 */
+            display: flex; flex-direction: column; align-items: center; z-index: 2;
+        }
         .lock-ring-container { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 110px; height: 110px; background: rgba(58, 92, 99, 0.7); animation-delay: 0s; }
@@ -43,44 +49,33 @@
         @keyframes rippleExpand { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
         .lock-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; z-index: 10; border-radius: 50%; background: #3a5c63; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
         .lock-icon-svg { width: 54px; height: 54px; fill: none; stroke: #ffffff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
-        .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 0.5px; }
-        .info-date { margin-top: 6px; font-size: 15px; font-weight: 300; opacity: 0.9; }
+        .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; }
 
         /* ==========================================
-           底部深色区域 (从屏幕底部起，高 160px)
+           核心修复 1：深色区域高度增加60px (160+60=220px)，底边封严
            ========================================== */
         .bottom-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 160px; /* 高度改为 160px */
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 220px; /* 增大到 220px */
             z-index: 1; touch-action: none; overflow: visible;
         }
 
-        /* 完美的半圆弧形边缘线 */
-        .arc-svg-bg {
-            display: block; width: 100%; height: 100%;
-        }
+        .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
-        /* ==========================================
-           滑动交互层 (按钮向上位移 80px)
-           ========================================== */
         .bottom-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none;
         }
 
-        /* 滑动菜单容器：相对于深色面板向上移动 80px */
+        /* 滑动菜单容器：向上移动 80px */
         .menu-slider {
-            position: absolute; bottom: 80px; /* 修改为 80px */
-            left: 0; width: 100%; pointer-events: auto;
-            /* 隐藏位移改为 100% + 80px */
+            position: absolute; bottom: 80px; left: 0; width: 100%; pointer-events: auto;
             transform: translateY(calc(100% + 80px)); 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
         }
 
-        /* 打开状态：弹出到指定位置 */
-        .bottom-area.open .menu-slider {
-            transform: translateY(0);
-        }
+        .bottom-area.open .menu-slider { transform: translateY(0); }
 
         /* 按钮网格布局 */
         .menu-grid {
@@ -92,17 +87,15 @@
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
-        /* 版本号 */
         .version {
             position: absolute; bottom: 20px; left: 0; width: 100%; pointer-events: auto;
             text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; z-index: 10;
         }
 
-        /* 响应式适配 */
         @media (max-width: 360px) {
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
-            .bottom-area { height: 140px; }
+            .bottom-area { height: 200px; }
             .menu-slider { bottom: 60px; transform: translateY(calc(100% + 60px)); }
         }
         @media (min-width: 600px) {
@@ -118,6 +111,7 @@
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
+        <!-- 修正了位置的中心锁环 -->
         <div class="lock-center">
             <div class="lock-ring-container">
                 <div class="ripple-ring ring-1"></div><div class="ripple-ring ring-2"></div>
@@ -134,21 +128,15 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部交互区域 -->
+        <!-- 底部交互区域，高度增加60px至220px -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 核心修复：弧形边界不再消失。加入了 1px 的描边（stroke），完美还原分割线 -->
-            <svg class="arc-svg-bg" viewBox="0 0 110.25 160" preserveAspectRatio="none">
-                <!-- 
-                    保持 200px 半径，32° 角的基础比例。
-                    viewBox 等于当前 160px 容器高度，确保填满整个底部。
-                    加入 stroke="#3b6e66" 和 stroke-width="2"，重现清亮的弧形割线。
-                -->
-                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 160 L 0 160 Z" 
+            <!-- SVG高度也顺延增加至220px -->
+            <svg class="arc-svg-bg" viewBox="0 0 110.25 220" preserveAspectRatio="none">
+                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 220 L 0 220 Z" 
                       fill="#172f2d" stroke="#499482" stroke-width="2" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
-                <!-- 滑动菜单按钮 -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -176,7 +164,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 手势触发全屏 
+        // 2. 核心修复 3：全屏交互逻辑（支持触屏和鼠标单击，且可反复触发）
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
@@ -184,10 +172,20 @@
                 .catch(() => { if (el.requestFullscreen) el.requestFullscreen(); });
             } else { if (el.requestFullscreen) el.requestFullscreen(); }
         }
-        document.addEventListener('touchstart', safeFullscreen, { once: true });
+
+        // 绑定触摸和点击事件（仅生效一次）
+        function bindFullscreenEvents() {
+            document.addEventListener('touchstart', safeFullscreen, { once: true });
+            document.addEventListener('click', safeFullscreen, { once: true });
+        }
+
+        // 页面加载时绑定
+        bindFullscreenEvents();
+
+        // 退出全屏状态时，自动重新绑定事件，实现无限次点屏全屏
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
-                document.addEventListener('touchstart', safeFullscreen, { once: true });
+                bindFullscreenEvents();
             }
         });
 
