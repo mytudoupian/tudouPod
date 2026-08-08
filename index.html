@@ -279,7 +279,7 @@
     </div>
 
     <script>
-        // 实时时钟与日期更新
+        // 1. 实时时钟与日期更新
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -296,32 +296,40 @@
         updateTimeAndDate();
         setInterval(updateTimeAndDate, 1000);
 
-        // --- 页面加载后自动进入全屏 ---
-        window.addEventListener('load', () => {
-            // 加入200ms的微延迟，确保DOM计算和布局完全稳定后再触发，避免白屏/消失
-            setTimeout(() => {
-                const el = document.documentElement;
-                
-                const goFullscreen = () => {
-                    if (el.requestFullscreen) {
-                        el.requestFullscreen().then(() => {
-                            // 成功全屏后，锁定竖屏方向
-                            if (screen.orientation && screen.orientation.lock) {
-                                screen.orientation.lock('portrait').catch(e => {
-                                    console.warn('竖屏锁定失败 (这是正常的，部分手机系统限制):', e);
-                                });
-                            }
-                        }).catch(err => {
-                            // 注意：部分移动端浏览器（如最新版Chrome、Safari）要求用户手势才能触发全屏
-                            console.warn('自动全屏失败，浏览器安全策略拦截 (在手机上可能需要点击一下屏幕):', err);
-                        });
-                    } else if (el.webkitRequestFullscreen) {
-                        el.webkitRequestFullscreen();
+        // 2. 全屏交互逻辑（必须用户手势触发）
+        function requestFullscreen() {
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                return el.requestFullscreen().then(() => {
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('portrait').catch(() => {});
                     }
-                };
-                
-                goFullscreen();
-            }, 200);
+                });
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
+            }
+        }
+
+        // 触发展开全屏的方法
+        function triggerFullscreen() {
+            if (!document.fullscreenElement) {
+                requestFullscreen();
+            }
+        }
+
+        // 核心修改：页面加载后，侦听用户的第一次触碰/点击。
+        // { once: true } 表示用户触碰一次后立刻移除该监听，避免反复触发。
+        document.addEventListener('touchstart', triggerFullscreen, { once: true });
+        document.addEventListener('click', triggerFullscreen, { once: true });
+
+        // 额外优化：如果用户在手机上通过下拉状态栏退出了全屏，
+        // 给用户第二次点击屏幕重新全屏的机会。
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                // 退出全屏后，重新绑定一次触摸/点击监听
+                document.addEventListener('touchstart', triggerFullscreen, { once: true });
+                document.addEventListener('click', triggerFullscreen, { once: true });
+            }
         });
     </script>
 </body>
