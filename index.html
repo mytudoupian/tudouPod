@@ -1,346 +1,402 @@
 <!DOCTYPE html>
-<html lang="zh">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>tudouPod</title>
-
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>tudou</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-      }
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        background-color: #000;
-        overflow: hidden;
-      }
-      #clock {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        background: #000;
-      }
-      .label {
-        display: inline-block;
-        color: #4d4d4d;
-        text-align: center;
-        padding: 0 5px;
-        font-size: 19px;
-        transition: left 1s, top 1s;
-        transform-origin: 0% 0%;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="clock"></div>
-    <script>
-      const monthText = [
-        '一月',
-        '二月',
-        '三月',
-        '四月',
-        '五月',
-        '六月',
-        '七月',
-        '八月',
-        '九月',
-        '十月',
-        '十一月',
-        '十二月',
-      ];
-      const dayText = [
-        '一号',
-        '二号',
-        '三号',
-        '四号',
-        '五号',
-        '六号',
-        '七号',
-        '八号',
-        '九号',
-        '十号',
-        '十一号',
-        '十二号',
-        '十三号',
-        '十四号',
-        '十五号',
-        '十六号',
-        '十七号',
-        '十八号',
-        '十九号',
-        '二十号',
-        '二十一号',
-        '二十二号',
-        '二十三号',
-        '二十四号',
-        '二十五号',
-        '二十六号',
-        '二十七号',
-        '二十八号',
-        '二十九号',
-        '三十号',
-        '三十一号',
-      ];
-      const weekText = [
-        '星期日',
-        '星期一',
-        '星期二',
-        '星期三',
-        '星期四',
-        '星期五',
-        '星期六',
-      ];
-      const hourText = [
-        '零点',
-        '一点',
-        '两点',
-        '三点',
-        '四点',
-        '五点',
-        '六点',
-        '七点',
-        '八点',
-        '九点',
-        '十点',
-        '十一点',
-        '十二点',
-        '十三点',
-        '十四点',
-        '十五点',
-        '十六点',
-        '十七点',
-        '十八点',
-        '十九点',
-        '二十点',
-        '二十一点',
-        '二十二点',
-        '二十三点',
-      ];
-      const minuteText = [
-        '零分',
-        '一分',
-        '二分',
-        '三分',
-        '四分',
-        '五分',
-        '六分',
-        '七分',
-        '八分',
-        '九分',
-        '十分',
-        '十一分',
-        '十二分',
-        '十三分',
-        '十四分',
-        '十五分',
-        '十六分',
-        '十七分',
-        '十八分',
-        '十九分',
-        '二十分',
-        '二十一分',
-        '二十二分',
-        '二十三分',
-        '二十四分',
-        '二十五分',
-        '二十六分',
-        '二十七分',
-        '二十八分',
-        '二十九分',
-        '三十分',
-        '三十一分',
-        '三十二分',
-        '三十三分',
-        '三十四分',
-        '三十五分',
-        '三十六分',
-        '三十七分',
-        '三十八分',
-        '三十九分',
-        '四十分',
-        '四十一分',
-        '四十二分',
-        '四十三分',
-        '四十四分',
-        '四十五分',
-        '四十六分',
-        '四十七分',
-        '四十八分',
-        '四十九分',
-        '五十分',
-        '五十一分',
-        '五十二分',
-        '五十三分',
-        '五十四分',
-        '五十五分',
-        '五十六分',
-        '五十七分',
-        '五十八分',
-        '五十九分',
-      ];
-      const secondsText = [
-        '零秒',
-        '一秒',
-        '二秒',
-        '三秒',
-        '四秒',
-        '五秒',
-        '六秒',
-        '七秒',
-        '八秒',
-        '九秒',
-        '十秒',
-        '十一秒',
-        '十二秒',
-        '十三秒',
-        '十四秒',
-        '十五秒',
-        '十六秒',
-        '十七秒',
-        '十八秒',
-        '十九秒',
-        '二十秒',
-        '二十一秒',
-        '二十二秒',
-        '二十三秒',
-        '二十四秒',
-        '二十五秒',
-        '二十六秒',
-        '二十七秒',
-        '二十八秒',
-        '二十九秒',
-        '三十秒',
-        '三十一秒',
-        '三十二秒',
-        '三十三秒',
-        '三十四秒',
-        '三十五秒',
-        '三十六秒',
-        '三十七秒',
-        '三十八秒',
-        '三十九秒',
-        '四十秒',
-        '四十一秒',
-        '四十二秒',
-        '四十三秒',
-        '四十四秒',
-        '四十五秒',
-        '四十六秒',
-        '四十七秒',
-        '四十八秒',
-        '四十九秒',
-        '五十秒',
-        '五十一秒',
-        '五十二秒',
-        '五十三秒',
-        '五十四秒',
-        '五十五秒',
-        '五十六秒',
-        '五十七秒',
-        '五十八秒',
-        '五十九秒',
-      ];
-      var clock;
-      var monthList = [];
-      var dayList = [];
-      var weekList = [];
-      var hourList = [];
-      var minuteList = [];
-      var secondsList = [];
-      var isCircle = false;
-      var textSet = [
-        [monthText, monthList],
-        [dayText, dayList],
-        [weekText, weekList],
-        [hourText, hourList],
-        [minuteText, minuteList],
-        [secondsText, secondsList],
-      ];
-      window.onload = function () {
-        init();
-        setInterval(function () {
-          runTime();
-        }, 100);
-        changePosition();
-        setTimeout(function () {
-          changeCircle();
-        }, 200);
-      };
-      function init() {
-        clock = document.getElementById('clock');
-        for (var i = 0; i < textSet.length; i++) {
-          for (var j = 0; j < textSet[i][0].length; j++) {
-            var temp = createLabel(textSet[i][0][j]);
-            clock.appendChild(temp);
-            textSet[i][1].push(temp);
-          }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-      }
-      function createLabel(text) {
-        var div = document.createElement('div');
-        div.classList.add('label');
-        div.innerText = text;
-        return div;
-      }
-      function runTime() {
-        var now = new Date();
-        var month = now.getMonth();
-        var day = now.getDate();
-        var week = now.getDay();
-        var hour = now.getHours();
-        var minute = now.getMinutes();
-        var seconds = now.getSeconds();
-        initStyle();
-        var nowValue = [month, day - 1, week, hour, minute, seconds];
-        for (var i = 0; i < nowValue.length; i++) {
-          var num = nowValue[i];
-          textSet[i][1][num].style.color = '#fff';
-        }
-        if (isCircle) {
-          var widthMid = document.body.clientWidth / 2;
-          var heightMid = document.body.clientHeight / 2;
-          for (var i = 0; i < textSet.length; i++) {
-            for (var j = 0; j < textSet[i][0].length; j++) {
-              var r = (i + 1) * 35 + 50 * i;
-              var deg = (360 / textSet[i][1].length) * (j - nowValue[i]);
-              var x = r * Math.sin((deg * Math.PI) / 180) + widthMid;
-              var y = heightMid - r * Math.cos((deg * Math.PI) / 180);
-              var temp = textSet[i][1][j];
-              temp.style.transform = 'rotate(' + (-90 + deg) + 'deg)';
-              temp.style.left = x + 'px';
-              temp.style.top = y + 'px';
-            }
-          }
-        }
-      }
-      function initStyle() {
-        var label = document.getElementsByClassName('label');
-        for (var i = 0; i < label.length; i++) {
-          label[i].style.color = '#4d4d4d';
-        }
-      }
-      function changePosition() {
-        for (let i = 0; i < textSet.length; i++) {
-          for (let j = 0; j < textSet[i][1].length; j++) {
-            let tempX = textSet[i][1][j].offsetLeft + 'px';
-            let tempY = textSet[i][1][j].offsetTop + 'px';
-            setTimeout(function () {
-              textSet[i][1][j].style.position = 'absolute';
-              textSet[i][1][j].style.left = tempX;
-              textSet[i][1][j].style.top = tempY;
-            }, 50);
-          }
-        }
-      }
-      function changeCircle() {
-        isCircle = true;
-        clock.style.transform = 'rotate(90deg)';
-      }
-    </script>
-  </body>
-</html>
 
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
+            color: #ffffff;
+            user-select: none;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            justify-content: space-between;
+        }
+
+        /* --- 全屏控制按钮 --- */
+        #fullscreen-btn {
+            position: absolute;
+            top: 30px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 1;
+            visibility: visible;
+        }
+        /* 全屏状态下按钮完全隐藏 */
+        #fullscreen-btn.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* 顶部区域 */
+        .top-area {
+            padding: 25px 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        /* 顶部滚动公告栏 */
+        .top-msg {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 20px;
+            padding: 8px 0; 
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        .scroll-text {
+            display: inline-block;
+            animation: scrollRightToLeft 12s linear infinite;
+            padding: 0 10px; 
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        @keyframes scrollRightToLeft {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .brand-name {
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            margin-top: 10px;
+        }
+
+        .digital-clock {
+            font-size: 46px;
+            font-weight: 200;
+            margin-top: 18px;
+            letter-spacing: 1px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* 中心锁环区域 */
+        .lock-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: -30px;
+        }
+
+        /* 同心圆环容器 */
+        .lock-ring-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .ripple-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: rippleExpand 4s ease-in-out infinite;
+        }
+
+        .ring-1 { width: 110px; height: 110px; background: rgba(58, 92, 99, 0.7); animation-delay: 0s; }
+        .ring-2 { width: 140px; height: 140px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
+        .ring-3 { width: 170px; height: 170px; background: rgba(112, 183, 171, 0.3); animation-delay: 2s; }
+        .ring-4 { width: 200px; height: 200px; background: rgba(142, 212, 199, 0.15); animation-delay: 3s; }
+
+        @keyframes rippleExpand {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        .lock-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            z-index: 10;
+            border-radius: 50%;
+            background: #3a5c63;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .lock-icon-svg {
+            width: 54px;
+            height: 54px;
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .info-text {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+        .info-date {
+            margin-top: 6px;
+            font-size: 15px;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* 底部菜单面板 */
+        .bottom-panel {
+            background: rgba(23, 51, 45, 0.95);
+            border-radius: 40px 40px 0 0;
+            padding: 30px 15px 15px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+            gap: 20px 0;
+            justify-items: center;
+            align-items: start;
+            position: relative;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 400;
+        }
+        .menu-item svg {
+            width: 32px;
+            height: 32px;
+            stroke: #fff;
+            fill: none;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .version {
+            text-align: center;
+            font-size: 12px;
+            padding: 10px 0 20px;
+            color: #a0cdc1;
+            font-weight: 300;
+            background: rgba(23, 51, 45, 0.95);
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 360px) {
+            #fullscreen-btn { top: 15px; right: 10px; padding: 4px 10px; font-size: 11px; }
+            .digital-clock { font-size: 36px; }
+            .brand-name { font-size: 28px; letter-spacing: 4px; }
+            .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; }
+            .bottom-panel { padding: 20px 10px 10px; }
+        }
+        @media (min-width: 600px) {
+            .lock-ring-container { transform: scale(1.2); }
+            .digital-clock { font-size: 54px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 新增全屏按钮 -->
+        <button id="fullscreen-btn">全屏</button>
+
+        <!-- 顶部区域 -->
+        <div class="top-area">
+            <div class="top-msg">
+                <span class="scroll-text">1.0.1.3版: 本次更新已经完成Help Desk电话号码的修改。</span>
+            </div>
+            
+            <div class="brand-name">SAMSUNG</div>
+            <div class="digital-clock" id="clock-display">17:34:21</div>
+        </div>
+
+        <!-- 居中锁环 -->
+        <div class="lock-center">
+            <div class="lock-ring-container">
+                <div class="ripple-ring ring-1"></div>
+                <div class="ripple-ring ring-2"></div>
+                <div class="ripple-ring ring-3"></div>
+                <div class="ripple-ring ring-4"></div>
+                
+                <div class="lock-wrapper">
+                    <svg class="lock-icon-svg" viewBox="0 0 100 100">
+                        <path d="M 35 40 V 30 a 15 15 0 0 1 30 0 V 40" />
+                        <rect x="15" y="38" width="70" height="55" rx="10" />
+                        <circle cx="50" cy="62" r="5" />
+                        <path d="M 50 67 L 50 84" />
+                    </svg>
+                </div>
+            </div>
+            <div class="info-text">保安策略已开启</div>
+            <div class="info-date" id="date-display">2026年8月6日</div>
+        </div>
+
+        <!-- 底部菜单 -->
+        <div>
+            <div class="bottom-panel">
+                <div class="menu-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg>
+                    <span>扫码</span>
+                </div>
+                <div class="menu-item">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M8 10h.01M12 10h.01M16 10h.01"></path></svg>
+                    <span>消息</span>
+                </div>
+                <div class="menu-item">
+                    <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>设置</span>
+                </div>
+                <div class="menu-item" style="grid-column: 1;">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>条款</span>
+                </div>
+                <div class="menu-item" style="grid-column: 2;">
+                    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <span>Help Desk</span>
+                </div>
+            </div>
+            <div class="version">V1.0.1.3</div>
+        </div>
+    </div>
+
+    <script>
+        // 实时时钟与日期更新
+        function updateTimeAndDate() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
+            
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1; 
+            const day = now.getDate();
+            document.getElementById('date-display').textContent = `${year}年${month}月${day}日`;
+        }
+        updateTimeAndDate();
+        setInterval(updateTimeAndDate, 1000);
+
+        // --- 全屏功能控制逻辑 ---
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const docElm = document.documentElement;
+
+        // 判断当前是否已全屏 (兼容主流浏览器和 iOS Safari)
+        function isFullscreen() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        }
+
+        // 请求全屏 (兼容各浏览器)
+        function requestFullscreen() {
+            if (docElm.requestFullscreen) {
+                docElm.requestFullscreen();
+            } else if (docElm.webkitRequestFullscreen) {
+                docElm.webkitRequestFullscreen();
+            } else if (docElm.mozRequestFullScreen) {
+                docElm.mozRequestFullScreen();
+            } else if (docElm.msRequestFullscreen) {
+                docElm.msRequestFullscreen();
+            }
+        }
+
+        // 退出全屏
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+
+        // 切换按钮状态 (全屏时隐藏按钮)
+        function toggleButtonVisibility() {
+            if (isFullscreen()) {
+                fullscreenBtn.classList.add('hidden');
+            } else {
+                fullscreenBtn.classList.remove('hidden');
+            }
+        }
+
+        // 监听浏览器全屏状态变化事件
+        document.addEventListener('fullscreenchange', toggleButtonVisibility);
+        document.addEventListener('webkitfullscreenchange', toggleButtonVisibility);
+        document.addEventListener('mozfullscreenchange', toggleButtonVisibility);
+        document.addEventListener('MSFullscreenChange', toggleButtonVisibility);
+
+        // 点击按钮触发全屏
+        fullscreenBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 防止冒泡
+            if (!isFullscreen()) {
+                requestFullscreen();
+                // 在部分 iOS Safari 上，进入全屏时不会立刻触发 fullscreenchange，主动控制一次
+                setTimeout(() => toggleButtonVisibility(), 200);
+            } else {
+                exitFullscreen();
+            }
+        });
+
+        // 兼容用户通过手势下拉回退等非API方式退出全屏 (主动监听窗口大小和视觉变化)
+        // 因为部分移动端浏览器没有抛出全屏退出事件，我们使用 ResizeObserver 辅助判断
+        if (window.ResizeObserver) {
+            const resizeObserver = new ResizeObserver(() => {
+                if (!isFullscreen()) {
+                    fullscreenBtn.classList.remove('hidden');
+                }
+            });
+            resizeObserver.observe(document.body);
+        }
+    </script>
+</body>
+</html>
