@@ -32,9 +32,11 @@
         .brand-name { font-size: 34px; font-weight: 700; letter-spacing: 6px; margin-top: 10px; }
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-        /* 中心锁区域 (根据原图位置精准上移至 44% 处) */
-        .lock-center { position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
-        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px; }
+        /* ==========================================
+           中心锁区域 (下移了锁图标的整体高度)
+           ========================================== */
+        .lock-center { position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
+        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 24px; /* 增加距离，将文字往下推 */ }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 105px; height: 105px; background: rgba(58, 92, 99, 0.8); animation-delay: 0s; }
         .ring-2 { width: 135px; height: 135px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
@@ -44,20 +46,21 @@
         .lock-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95px; height: 95px; z-index: 10; border-radius: 50%; background: #3a5c63; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
         .lock-icon-svg { width: 50px; height: 50px; fill: none; stroke: #ffffff; stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; }
         
-        /* 锁下方文字 (原图间距还原) */
         .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 1px; margin-top: 4px; }
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; margin-top: 8px; letter-spacing: 1px; }
 
-        /* 底部深色面板 (参考原图比例，高度提高，占据下方三分之一) */
+        /* ==========================================
+           底部深色面板 (弧度大幅增大)
+           ========================================== */
         .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 280px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
-        /* 交互弹出层 (上滑隐藏、下拉出现) */
+        /* 交互弹出层 (按钮整体往上移动) */
         .bottom-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; }
-        .menu-slider { position: absolute; bottom: 60px; left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 60px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
+        .menu-slider { position: absolute; bottom: 30px; /* 从 60px 修改为 30px，整体往更高处移动 */ left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 30px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
         .bottom-area.open .menu-slider { transform: translateY(0); }
 
-        /* 按钮网格布局 (严格对齐原图) */
+        /* 按钮网格布局 */
         .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 24px 0; margin: 0 auto; width: 100%; max-width: 340px; justify-items: center; }
         .menu-item { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; font-size: 12px; font-weight: 400; width: 100%; }
         .menu-item svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -71,7 +74,7 @@
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
             .bottom-area { height: 240px; }
-            .menu-slider { bottom: 40px; transform: translateY(calc(100% + 40px)); }
+            .menu-slider { bottom: 20px; transform: translateY(calc(100% + 20px)); }
         }
         @media (min-width: 600px) { .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; } }
     </style>
@@ -102,13 +105,13 @@
 
         <!-- 底部面板交互区 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 使用超大半径曲线生成平缓且较宽的原图拱形，完全消除亮边 -->
+            <!-- 核心修改：大幅提高弧形的拱度。半径从 600 改为 120，拱高显著变大 -->
             <svg class="arc-svg-bg" viewBox="0 0 153.07 280" preserveAspectRatio="none" shape-rendering="crispEdges">
-                <path d="M 0 25 A 600 600 0 0 1 153.07 25 L 153.07 280 L 0 280 Z" fill="#172f2d" />
+                <path d="M 0 45 A 120 120 0 0 1 153.07 45 L 153.07 280 L 0 280 Z" fill="#172f2d" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
-                <!-- 向上滑出 80px 出现 (60 + 20) -->
+                <!-- 上滑时，按钮定位得更高 (bottom 30px) -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
