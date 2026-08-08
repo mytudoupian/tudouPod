@@ -32,14 +32,8 @@
         .brand-name { font-size: 34px; font-weight: 700; letter-spacing: 6px; margin-top: 10px; }
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 18px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-        /* ==========================================
-           核心修复：锁图标及文字绝对居中
-           ========================================== */
-        .lock-center {
-            position: absolute; top: 45%; left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex; flex-direction: column; align-items: center; z-index: 2;
-        }
+        /* 中心锁环区域 */
+        .lock-center { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
         .lock-ring-container { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 110px; height: 110px; background: rgba(58, 92, 99, 0.7); animation-delay: 0s; }
@@ -52,52 +46,22 @@
         .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 6px; }
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; }
 
-        /* ==========================================
-           核心修复：底部深色区域 (高220px) 边缘消除刺眼光芒
-           ========================================== */
-        .bottom-area {
-            position: absolute; bottom: 0; left: 0; right: 0; /* 左右绝对铺满 */
-            width: 100%; height: 220px;
-            z-index: 1; touch-action: none; 
-            overflow: hidden; /* 彻底切除边缘溢出的任何锯齿 */
-            display: block; line-height: 0; font-size: 0;
-        }
-
+        /* 底部深色区域 */
+        .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 220px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
-        /* ==========================================
-           滑动交互层：按钮下移 20px (从80变为60)
-           ========================================== */
-        .bottom-content {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none;
-        }
-
-        .menu-slider {
-            position: absolute; bottom: 60px; /* 向下移动了20px */
-            left: 0; width: 100%; pointer-events: auto;
-            /* 隐藏的位移同步匹配 */
-            transform: translateY(calc(100% + 60px)); 
-            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            padding: 20px 0 0;
-        }
-
+        /* 滑动交互层 */
+        .bottom-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; }
+        .menu-slider { position: absolute; bottom: 60px; left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 60px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
         .bottom-area.open .menu-slider { transform: translateY(0); }
 
-        /* 按钮网格布局 */
-        .menu-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto;
-            gap: 20px 0; margin: 0 auto; width: 100%; max-width: 320px; justify-items: center;
-        }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 20px 0; margin: 0 auto; width: 100%; max-width: 320px; justify-items: center; }
         .menu-item { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; font-size: 12px; font-weight: 400; width: 100%; }
         .menu-item svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
-        .version {
-            position: absolute; bottom: 20px; left: 0; width: 100%; pointer-events: auto;
-            text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; z-index: 10;
-        }
+        .version { position: absolute; bottom: 20px; left: 0; width: 100%; pointer-events: auto; text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; z-index: 10; }
 
         @media (max-width: 360px) {
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
@@ -105,9 +69,7 @@
             .bottom-area { height: 200px; }
             .menu-slider { bottom: 40px; transform: translateY(calc(100% + 40px)); }
         }
-        @media (min-width: 600px) {
-            .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; }
-        }
+        @media (min-width: 600px) { .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; } }
     </style>
 </head>
 <body>
@@ -118,7 +80,6 @@
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
-        <!-- 锁标志居中 -->
         <div class="lock-center">
             <div class="lock-ring-container">
                 <div class="ripple-ring ring-1"></div><div class="ripple-ring ring-2"></div>
@@ -135,15 +96,16 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部交互区域，已修复亮边和按钮下移 -->
+        <!-- 底部交互区域，弧度已增大 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 彻底移除了 stroke 描边，添加 shape-rendering 锐化，防止刺眼亮色 -->
-            <svg class="arc-svg-bg" viewBox="0 0 110.25 220" preserveAspectRatio="none" shape-rendering="crispEdges">
-                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 220 L 0 220 Z" fill="#172f2d" />
+            <!-- 核心修改：将圆心角从 32° 增大到 45°，拱高显著增加，弧度更大 -->
+            <!-- 新比例：半径200，夹角45°，弦长 153.07，拱高 15.22 -->
+            <svg class="arc-svg-bg" viewBox="0 0 153.07 220" preserveAspectRatio="none" shape-rendering="crispEdges">
+                <path d="M 0 15.22 A 200 200 0 0 1 153.07 15.22 L 153.07 220 L 0 220 Z" fill="#172f2d" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
-                <!-- 按钮已整体下移 20px -->
+                <!-- 按钮保持在 60px 的位置 -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -171,7 +133,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 核心修复：全屏逻辑（点击/触摸屏幕任意位置均能触发）
+        // 2. 全屏逻辑（点击/触摸屏幕任意位置均能触发）
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
@@ -180,23 +142,18 @@
             } else { if (el.requestFullscreen) el.requestFullscreen(); }
         }
 
-        // 绑定触摸和点击事件（仅生效一次）
         function bindFullscreenEvents() {
             document.addEventListener('touchstart', safeFullscreen, { once: true });
             document.addEventListener('click', safeFullscreen, { once: true });
         }
 
-        // 页面加载时绑定
         bindFullscreenEvents();
 
-        // 退出全屏状态时，自动重新绑定事件，实现无限次点屏全屏
         document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                bindFullscreenEvents();
-            }
+            if (!document.fullscreenElement) { bindFullscreenEvents(); }
         });
 
-        // 3. 底部无限次滑动交互逻辑
+        // 3. 底部滑动逻辑
         const bottomPanel = document.getElementById('bottomPanel');
         let touchStartY = 0, touchDeltaY = 0, isSwiping = false;
 
