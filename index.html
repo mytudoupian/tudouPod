@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>保安策略</title>
+    <title>土豆</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -18,7 +18,6 @@
             background-size: cover; background-position: center; overflow: hidden;
         }
 
-        /* 物理横屏兜底 */
         @media (orientation: landscape) {
             body { background: #000; }
             .app-container { width: 100vh; height: 100vw; transform: rotate(-90deg); transform-origin: center center; }
@@ -32,7 +31,7 @@
         .brand-name { font-size: 34px; font-weight: 700; letter-spacing: 6px; margin-top: 10px; }
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 18px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-        /* 中心锁环区域 */
+        /* 中心锁区域 */
         .lock-center { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
         .lock-ring-container { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
@@ -46,11 +45,11 @@
         .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 6px; }
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; }
 
-        /* 底部深色区域 */
+        /* 底部深色区域 (高度 220px) */
         .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 220px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
-        /* 滑动交互层 */
+        /* 滑动层 (按钮下移 20px 即 bottom:60px) */
         .bottom-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; }
         .menu-slider { position: absolute; bottom: 60px; left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 60px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
         .bottom-area.open .menu-slider { transform: translateY(0); }
@@ -96,16 +95,14 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部交互区域，弧度已增大 -->
+        <!-- 底部交互区域 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 核心修改：将圆心角从 32° 增大到 45°，拱高显著增加，弧度更大 -->
-            <!-- 新比例：半径200，夹角45°，弦长 153.07，拱高 15.22 -->
+            <!-- 弧度调整为 45° 圆心角，拱起更明显 -->
             <svg class="arc-svg-bg" viewBox="0 0 153.07 220" preserveAspectRatio="none" shape-rendering="crispEdges">
                 <path d="M 0 15.22 A 200 200 0 0 1 153.07 15.22 L 153.07 220 L 0 220 Z" fill="#172f2d" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
-                <!-- 按钮保持在 60px 的位置 -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -121,7 +118,7 @@
     </div>
 
     <script>
-        // 1. 系统时钟与日期
+        // 1. 系统时钟
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -133,7 +130,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 全屏逻辑（点击/触摸屏幕任意位置均能触发）
+        // 2. 全屏交互逻辑
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
@@ -146,31 +143,74 @@
             document.addEventListener('touchstart', safeFullscreen, { once: true });
             document.addEventListener('click', safeFullscreen, { once: true });
         }
-
         bindFullscreenEvents();
 
+        // ----------------------------------------------------------
+        // 3. 核心修复：底部顽固失效的手势监听
+        // 将底部交互抽出独立函数，在状态切换时强制重置绑定
+        // ----------------------------------------------------------
+        function setupBottomPanelEvents() {
+            const bottomPanel = document.getElementById('bottomPanel');
+            if (!bottomPanel) return;
+
+            // 移除旧的事件绑定（防止重复绑定导致混乱）
+            const newPanel = bottomPanel.cloneNode(true);
+            bottomPanel.parentNode.replaceChild(newPanel, bottomPanel);
+
+            // 重新获取新节点
+            const freshPanel = document.getElementById('bottomPanel');
+
+            let touchStartY = 0;
+            let touchDeltaY = 0;
+            let isSwiping = false;
+
+            freshPanel.addEventListener('touchstart', function(e) {
+                touchStartY = e.touches[0].clientY;
+                touchDeltaY = 0;
+                isSwiping = false;
+            }, { passive: true });
+
+            freshPanel.addEventListener('touchmove', function(e) {
+                if (touchStartY === 0) return;
+                const currentY = e.touches[0].clientY;
+                touchDeltaY = currentY - touchStartY;
+                if (Math.abs(touchDeltaY) > 10) {
+                    isSwiping = true;
+                    if (e.cancelable) e.preventDefault(); // 阻截浏览器原生滑动
+                }
+            }, { passive: false });
+
+            freshPanel.addEventListener('touchend', function(e) {
+                if (!isSwiping) {
+                    touchStartY = 0; touchDeltaY = 0; return;
+                }
+                if (Math.abs(touchDeltaY) > 40) {
+                    if (touchDeltaY < 0) freshPanel.classList.add('open');
+                    else if (touchDeltaY > 0) freshPanel.classList.remove('open');
+                }
+                // 彻底清零
+                touchStartY = 0; touchDeltaY = 0; isSwiping = false;
+            }, { passive: true });
+
+            freshPanel.addEventListener('touchcancel', function(e) {
+                touchStartY = 0; touchDeltaY = 0; isSwiping = false;
+            }, { passive: true });
+        }
+
+        // 首次加载时绑定
+        setupBottomPanelEvents();
+
+        // 核心修复：每次全屏状态改变时，强制重新绑定底部手势监听！
         document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) { bindFullscreenEvents(); }
-        });
-
-        // 3. 底部滑动逻辑
-        const bottomPanel = document.getElementById('bottomPanel');
-        let touchStartY = 0, touchDeltaY = 0, isSwiping = false;
-
-        bottomPanel.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; touchDeltaY = 0; isSwiping = false; }, { passive: true });
-        bottomPanel.addEventListener('touchmove', function(e) {
-            if (touchStartY === 0) return;
-            const currentY = e.touches[0].clientY; touchDeltaY = currentY - touchStartY;
-            if (Math.abs(touchDeltaY) > 10) { isSwiping = true; if (e.cancelable) e.preventDefault(); }
-        }, { passive: false });
-        bottomPanel.addEventListener('touchend', function(e) {
-            if (!isSwiping) { touchStartY = 0; touchDeltaY = 0; return; }
-            if (Math.abs(touchDeltaY) > 40) {
-                if (touchDeltaY < 0) bottomPanel.classList.add('open'); else if (touchDeltaY > 0) bottomPanel.classList.remove('open');
+            // 延迟一点执行，等待浏览器底层渲染稳定
+            setTimeout(() => {
+                setupBottomPanelEvents();
+            }, 100);
+            
+            if (!document.fullscreenElement) {
+                bindFullscreenEvents();
             }
-            touchStartY = 0; touchDeltaY = 0; isSwiping = false;
-        }, { passive: true });
-        bottomPanel.addEventListener('touchcancel', function(e) { touchStartY = 0; touchDeltaY = 0; isSwiping = false; }, { passive: true });
+        });
     </script>
 </body>
 </html>
