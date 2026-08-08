@@ -21,6 +21,20 @@
             user-select: none;
         }
 
+        /* 核心兜底：如果手机进入横屏，强制用CSS旋转将其布局"扶正"为竖屏视觉 */
+        @media (orientation: landscape) {
+            body {
+                transform: rotate(-90deg) translateX(-100%);
+                transform-origin: 0 0;
+                width: 100vh;
+                height: 100vw;
+                position: absolute;
+                top: 0;
+                left: 0;
+                margin: 0;
+            }
+        }
+
         .app-container {
             display: flex;
             flex-direction: column;
@@ -296,39 +310,46 @@
         updateTimeAndDate();
         setInterval(updateTimeAndDate, 1000);
 
-        // 2. 全屏交互逻辑（必须用户手势触发）
-        function requestFullscreen() {
+        // 2. 安全且稳定的全屏+竖屏锁定
+        function safeFullscreen() {
             const el = document.documentElement;
-            if (el.requestFullscreen) {
-                return el.requestFullscreen().then(() => {
-                    if (screen.orientation && screen.orientation.lock) {
-                        screen.orientation.lock('portrait').catch(() => {});
-                    }
-                });
-            } else if (el.webkitRequestFullscreen) {
-                el.webkitRequestFullscreen();
+            
+            // 核心改动：先请求竖屏锁定，再请求全屏
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('portrait')
+                    .then(() => {
+                        if (el.requestFullscreen) {
+                            el.requestFullscreen();
+                        } else if (el.webkitRequestFullscreen) {
+                            el.webkitRequestFullscreen();
+                        }
+                    })
+                    .catch(() => {
+                        // 锁定失败的回退：直接全屏，配合CSS横屏兜底机制
+                        if (el.requestFullscreen) {
+                            el.requestFullscreen();
+                        } else if (el.webkitRequestFullscreen) {
+                            el.webkitRequestFullscreen();
+                        }
+                    });
+            } else {
+                if (el.requestFullscreen) {
+                    el.requestFullscreen();
+                } else if (el.webkitRequestFullscreen) {
+                    el.webkitRequestFullscreen();
+                }
             }
         }
 
-        // 触发展开全屏的方法
-        function triggerFullscreen() {
-            if (!document.fullscreenElement) {
-                requestFullscreen();
-            }
-        }
+        // 只有单击/触碰才触发全屏（满足现代浏览器安全策略）
+        document.addEventListener('touchstart', safeFullscreen, { once: true });
+        document.addEventListener('click', safeFullscreen, { once: true });
 
-        // 核心修改：页面加载后，侦听用户的第一次触碰/点击。
-        // { once: true } 表示用户触碰一次后立刻移除该监听，避免反复触发。
-        document.addEventListener('touchstart', triggerFullscreen, { once: true });
-        document.addEventListener('click', triggerFullscreen, { once: true });
-
-        // 额外优化：如果用户在手机上通过下拉状态栏退出了全屏，
-        // 给用户第二次点击屏幕重新全屏的机会。
+        // 额外修补：如果用户意外退出全屏，重新绑定一次触摸监听
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
-                // 退出全屏后，重新绑定一次触摸/点击监听
-                document.addEventListener('touchstart', triggerFullscreen, { once: true });
-                document.addEventListener('click', triggerFullscreen, { once: true });
+                document.addEventListener('touchstart', safeFullscreen, { once: true });
+                document.addEventListener('click', safeFullscreen, { once: true });
             }
         });
     </script>
