@@ -36,7 +36,7 @@
             background-position: center;
         }
 
-        /* 横屏兜底：物理横屏时旋转90度保证完美比例 */
+        /* 横屏兜底 */
         @media (orientation: landscape) {
             body { background: #000; }
             .app-container {
@@ -56,7 +56,6 @@
             width: 100%;
         }
         
-        /* 顶部滚动公告栏 */
         .top-msg {
             width: 100%;
             max-width: 100%;
@@ -108,7 +107,6 @@
             margin-top: -30px;
         }
 
-        /* 同心圆环容器 */
         .lock-ring-container {
             position: relative;
             width: 200px;
@@ -183,22 +181,24 @@
         .bottom-area {
             position: relative;
             width: 100%;
-            /* 生成向上凸起的纯弧形 */
-            border-radius: 35px 35px 0 0;
+            /* 核心修复 3：使用这种 border-radius 可以产生纯粹的上拱弧度 */
+            border-radius: 40px 40px 0 0;
             background: rgba(23, 51, 45, 0.95);
-            padding-bottom: 50px; /* 给底部留出足够空白 */
+            padding-bottom: 35px; /* 底部留白 */
             overflow: hidden;
             z-index: 1;
+            /* 核心修复 1：取消浏览器默认的触控滚动/回弹，保证我们的手势 100% 生效 */
+            touch-action: none;
         }
 
         /* 滑动容器 */
         .menu-slider {
             width: 100%;
+            /* 默认隐藏状态 */
+            transform: translateY(100%); 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            transform: translateY(100%); /* 默认隐藏在底部 */
             padding: 25px 0 0;
             position: relative;
-            z-index: 2;
         }
 
         /* 打开状态 */
@@ -206,16 +206,17 @@
             transform: translateY(0);
         }
 
-        /* 5个按钮的网格布局 (强制第二排与第一排完美纵向对齐) */
+        /* 5个按钮的网格布局 (完美对齐) */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
             gap: 20px 0;
             margin: 0 auto;
             width: 100%;
-            max-width: 320px;
-            justify-items: center;
+            max-width: 320px; /* 居中且对齐准确 */
         }
+
         .menu-item {
             display: flex;
             flex-direction: column;
@@ -224,7 +225,9 @@
             color: #fff;
             font-size: 12px;
             font-weight: 400;
+            width: 100%;
         }
+        
         .menu-item svg {
             width: 32px;
             height: 32px;
@@ -234,22 +237,23 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        
-        /* 强制将第4、5个按钮归位到第1、2列的绝对下方 */
+
+        /* 核心修复 2：强制将第二排按钮对齐到第一排的正下方 */
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
-        /* 底部固定的版本号 (不被遮挡且距离按钮更远) */
+        /* 核心修复 4：底部绝对定位的版本号 (不被菜单遮挡且距离更远) */
         .version {
             position: absolute;
-            bottom: 20px; 
+            bottom: 30px;  /* 调整到底部距离，让按钮与它有充足距离 */
+            left: 0;
             width: 100%;
             text-align: center;
             font-size: 12px;
             color: #a0cdc1;
             font-weight: 300;
             pointer-events: none;
-            z-index: 10; /* 层级在滑动菜单之上，永远不被遮挡 */
+            z-index: 10; /* 永远在菜单的渲染层级之上 */
         }
 
         /* 响应式适配 */
@@ -258,8 +262,8 @@
             .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; }
             .menu-grid { max-width: 280px; }
-            .bottom-area { padding-bottom: 40px; }
-            .version { bottom: 15px; }
+            .bottom-area { padding-bottom: 30px; }
+            .version { bottom: 20px; }
         }
         @media (min-width: 600px) {
             .lock-ring-container { transform: scale(1.2); }
@@ -299,13 +303,10 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- ================= 交互底部菜单 ================= -->
+        <!-- ================= 重构后的交互底部菜单 ================= -->
         <div class="bottom-area" id="bottomPanel">
             
-            <!-- 版本号 (HTML置于菜单之上，确保层级最高) -->
-            <div class="version">V1.0.1.3</div>
-
-            <!-- 滑动弹出层 -->
+            <!-- 滑动触发区 -->
             <div class="menu-slider">
                 <div class="menu-grid">
                     <div class="menu-item">
@@ -330,6 +331,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 核心修复 4：版本号放在菜单下方，且层级最高 -->
+            <div class="version">V1.0.1.3</div>
         </div>
     </div>
 
@@ -379,7 +383,7 @@
         });
 
         // ========================================
-        // 3. 底部抽屉的 上滑/下拉 无限操作逻辑 (彻底修复)
+        // 3. 底部抽屉的 上滑/下拉 交互逻辑 (彻底重构)
         // ========================================
         const bottomPanel = document.getElementById('bottomPanel');
         let touchStartY = 0;
@@ -390,7 +394,7 @@
         bottomPanel.addEventListener('touchstart', function(e) {
             touchStartY = e.touches[0].clientY;
             touchDeltaY = 0;
-            isSwiping = false;
+            isSwiping = false; // 每次新触摸都重置状态
         }, { passive: true });
 
         // 触摸滑动过程
@@ -399,37 +403,32 @@
             const currentY = e.touches[0].clientY;
             touchDeltaY = currentY - touchStartY;
             
-            // 如果滑动距离超过 10px，视为滑动操作
             if (Math.abs(touchDeltaY) > 10) {
                 isSwiping = true;
-                // 核心修复：阻止原生浏览器的下拉刷新或滚动行为，确保交互不中断
-                if (e.cancelable) {
-                    e.preventDefault(); 
-                }
+                if (e.cancelable) e.preventDefault(); 
             }
-        }, { passive: false }); // 必须设置为 false 才能使用 preventDefault
+        }, { passive: false });
 
-        // 触摸结束
+        // 触摸结束 (手指离开屏幕)
         bottomPanel.addEventListener('touchend', function(e) {
-            // 如果仅仅是点击，不触发任何操作
             if (!isSwiping) {
-                touchStartY = 0;
-                touchDeltaY = 0;
-                return; 
+                touchStartY = 0; touchDeltaY = 0; return; 
             }
             
-            // 检查最终滑动距离是否超过 40px 阈值
             if (Math.abs(touchDeltaY) > 40) {
-                if (touchDeltaY < 0) {
-                    // 手指向上滑动：打开菜单
-                    bottomPanel.classList.add('open');
-                } else if (touchDeltaY > 0) {
-                    // 手指向下滑动：关闭菜单
-                    bottomPanel.classList.remove('open');
-                }
+                if (touchDeltaY < 0) bottomPanel.classList.add('open');
+                else if (touchDeltaY > 0) bottomPanel.classList.remove('open');
             }
             
-            // 重置状态，为下一次滑动作准备
+            // 彻底重置状态，确保下一次滑动能正常重新计算
+            touchStartY = 0;
+            touchDeltaY = 0;
+            isSwiping = false;
+        }, { passive: true });
+
+        // 核心修复 1：兼容手指滑出手机屏幕的情况（必须重置状态，防止卡死）
+        bottomPanel.addEventListener('touchcancel', function(e) {
+            // 强行重置，让下一次触摸事件重新计算
             touchStartY = 0;
             touchDeltaY = 0;
             isSwiping = false;
