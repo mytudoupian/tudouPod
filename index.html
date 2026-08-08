@@ -30,11 +30,9 @@
         .scroll-text { display: inline-block; animation: scrollRightToLeft 12s linear infinite; padding: 0 10px; font-size: clamp(11px, 1.5vw, 16px); font-weight: 400; color: rgba(255, 255, 255, 0.9); }
         @keyframes scrollRightToLeft { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        /* 核心修正：使用 clamp 使字体自适应屏幕大小，绝不失调 */
-        .brand-name { font-size: clamp(44px, 8vw, 56px); font-weight: 900; letter-spacing: clamp(2px, 0.6vw, 6px); margin-top: 10px; }
-        .digital-clock { font-size: clamp(32px, 6vw, 28px); font-weight: 500; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+        .brand-name { font-size: clamp(32px, 7vw, 56px); font-weight: 900; letter-spacing: clamp(2px, 0.6vw, 6px); margin-top: 10px; }
+        .digital-clock { font-size: clamp(38px, 6vw, 60px); font-weight: 500; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-        /* 锁和文字下移区域 */
         .lock-center { 
             position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); 
             display: flex; flex-direction: column; align-items: center; z-index: 2; 
@@ -62,26 +60,21 @@
         }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
-        /* 按钮及底部内容层 */
         .bottom-content { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             pointer-events: none; 
         }
 
-        /* 版本号 */
         .version {
             position: absolute; bottom: 25px; left: 0; width: 100%; pointer-events: auto;
             text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; 
             z-index: 10;
         }
 
-        /* ==========================================
-           核心修正：统一滑动逻辑的数值
-           ========================================== */
         .menu-slider { 
             position: absolute; bottom: 125px; 
             left: 0; width: 100%; pointer-events: auto;
-            transform: translateY(calc(100% + 125px)); /* 修正了原代码 125px 与 210px 不匹配的 Bug */
+            transform: translateY(calc(100% + 125px));
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
             z-index: 5;
@@ -89,14 +82,12 @@
 
         .bottom-area.open .menu-slider { transform: translateY(0); }
 
-        /* 按钮网格布局 */
         .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 42px 0; margin: 0 auto; width: 100%; max-width: 340px; justify-items: center; }
         .menu-item { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; font-size: 12px; font-weight: 400; width: 100%; }
         .menu-item svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
-        /* 极小屏适配 */
         @media (max-width: 360px) {
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
             .bottom-area { height: 260px; }
@@ -183,27 +174,62 @@
             bottomPanel.parentNode.replaceChild(newPanel, bottomPanel);
             const freshPanel = document.getElementById('bottomPanel');
 
-            let touchStartY = 0, touchDeltaY = 0, isSwiping = false;
+            /* ------------ 核心重构滑动侦测逻辑 ------------ */
+            let touchStartX = 0, touchStartY = 0;
+            let touchDeltaX = 0, touchDeltaY = 0;
+            let isSwiping = false;
+
             freshPanel.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY; touchDeltaY = 0; isSwiping = false;
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                touchDeltaX = 0; touchDeltaY = 0; isSwiping = false;
             }, { passive: true });
+
             freshPanel.addEventListener('touchmove', function(e) {
-                if (touchStartY === 0) return;
-                const currentY = e.touches[0].clientY; touchDeltaY = currentY - touchStartY;
-                if (Math.abs(touchDeltaY) > 10) {
-                    isSwiping = true; if (e.cancelable) e.preventDefault();
+                if (touchStartY === 0 && touchStartX === 0) return;
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                touchDeltaX = currentX - touchStartX;
+                touchDeltaY = currentY - touchStartY;
+                
+                // 只要 X 或 Y 任意轴滑动超过 10px，视为有效滑动
+                if (Math.abs(touchDeltaX) > 10 || Math.abs(touchDeltaY) > 10) {
+                    isSwiping = true;
+                    if (e.cancelable) e.preventDefault();
                 }
             }, { passive: false });
+
             freshPanel.addEventListener('touchend', function(e) {
-                if (!isSwiping) { touchStartY = 0; touchDeltaY = 0; return; }
-                if (Math.abs(touchDeltaY) > 40) {
-                    if (touchDeltaY < 0) freshPanel.classList.add('open');
-                    else if (touchDeltaY > 0) freshPanel.classList.remove('open');
+                if (!isSwiping) { 
+                    touchStartX = 0; touchStartY = 0; 
+                    touchDeltaX = 0; touchDeltaY = 0; 
+                    return; 
                 }
-                touchStartY = 0; touchDeltaY = 0; isSwiping = false;
+                
+                // 核心修复：比较 X 轴和 Y 轴的绝对位移，谁大就执行谁的动作。
+                // 即使屏幕物理旋转了90度，导致物理手势变成左右滑动，这里也能完美抓取并映射为上下功能。
+                const absX = Math.abs(touchDeltaX);
+                const absY = Math.abs(touchDeltaY);
+                
+                if (absX > 40 || absY > 40) {
+                    if (absX >= absY) {
+                        // 横向滑动
+                        if (touchDeltaX < 0) freshPanel.classList.add('open');   // 物理向左滑 -> 视觉上滑 -> 展开
+                        else if (touchDeltaX > 0) freshPanel.classList.remove('open'); // 物理向右滑 -> 视觉下滑 -> 收起
+                    } else {
+                        // 纵向滑动
+                        if (touchDeltaY < 0) freshPanel.classList.add('open');   // 视觉上滑 -> 展开
+                        else if (touchDeltaY > 0) freshPanel.classList.remove('open'); // 视觉下滑 -> 收起
+                    }
+                }
+                
+                touchStartX = 0; touchStartY = 0; 
+                touchDeltaX = 0; touchDeltaY = 0; isSwiping = false;
             }, { passive: true });
+
             freshPanel.addEventListener('touchcancel', function(e) {
-                touchStartY = 0; touchDeltaY = 0; isSwiping = false;
+                touchStartX = 0; touchStartY = 0; 
+                touchDeltaX = 0; touchDeltaY = 0; isSwiping = false;
             }, { passive: true });
         }
 
