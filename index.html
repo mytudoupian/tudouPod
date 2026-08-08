@@ -33,10 +33,10 @@
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
         /* ==========================================
-           中心锁区域 (下移了锁图标的整体高度)
+           核心修改 1：中心锁区域整体大幅下移
            ========================================== */
-        .lock-center { position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
-        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 24px; /* 增加距离，将文字往下推 */ }
+        .lock-center { position: absolute; top: 51%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
+        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 35px; /* 进一步拉大锁与下方文字的距离，将文字往下推 */ }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 105px; height: 105px; background: rgba(58, 92, 99, 0.8); animation-delay: 0s; }
         .ring-2 { width: 135px; height: 135px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
@@ -50,14 +50,16 @@
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; margin-top: 8px; letter-spacing: 1px; }
 
         /* ==========================================
-           底部深色面板 (弧度大幅增大)
+           底部深色面板 (沿用你满意的弧度)
            ========================================== */
         .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 280px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
-        /* 交互弹出层 (按钮整体往上移动) */
+        /* ==========================================
+           核心修改 2：按钮大幅上移至紧贴弧线
+           ========================================== */
         .bottom-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; }
-        .menu-slider { position: absolute; bottom: 30px; /* 从 60px 修改为 30px，整体往更高处移动 */ left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 30px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
+        .menu-slider { position: absolute; bottom: 10px; /* 从 30px 改为 10px，继续往上提 */ left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 10px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
         .bottom-area.open .menu-slider { transform: translateY(0); }
 
         /* 按钮网格布局 */
@@ -74,7 +76,7 @@
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
             .bottom-area { height: 240px; }
-            .menu-slider { bottom: 20px; transform: translateY(calc(100% + 20px)); }
+            .menu-slider { bottom: 5px; transform: translateY(calc(100% + 5px)); }
         }
         @media (min-width: 600px) { .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; } }
     </style>
@@ -105,13 +107,13 @@
 
         <!-- 底部面板交互区 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 核心修改：大幅提高弧形的拱度。半径从 600 改为 120，拱高显著变大 -->
+            <!-- 弧度保持用 A 120 120，大幅拱起 -->
             <svg class="arc-svg-bg" viewBox="0 0 153.07 280" preserveAspectRatio="none" shape-rendering="crispEdges">
                 <path d="M 0 45 A 120 120 0 0 1 153.07 45 L 153.07 280 L 0 280 Z" fill="#172f2d" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
-                <!-- 上滑时，按钮定位得更高 (bottom 30px) -->
+                <!-- 上滑时，按钮已经提得非常靠上了 (bottom: 10px) -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -139,7 +141,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 单击/触摸全屏交互 (兼容现代浏览器安全策略)
+        // 2. 单击/触摸全屏交互
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
@@ -159,7 +161,6 @@
             const bottomPanel = document.getElementById('bottomPanel');
             if (!bottomPanel) return;
 
-            // 克隆并替换节点，强制性解绑旧事件（全屏时避免事件系统卡死）
             const newPanel = bottomPanel.cloneNode(true);
             bottomPanel.parentNode.replaceChild(newPanel, bottomPanel);
             const freshPanel = document.getElementById('bottomPanel');
@@ -195,10 +196,8 @@
             }, { passive: true });
         }
 
-        // 初始挂载
         setupBottomPanelEvents();
 
-        // 当全屏状态被切换时，强制重置菜单手势事件（确保绝对不失效）
         document.addEventListener('fullscreenchange', () => {
             setTimeout(() => { setupBottomPanelEvents(); }, 120);
             if (!document.fullscreenElement) { bindFullscreenEvents(); }
