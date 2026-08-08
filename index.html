@@ -33,11 +33,11 @@
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 18px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
         /* ==========================================
-           核心修复 2：锁图标精准固定在屏幕垂直居中
+           核心修复：锁图标及文字绝对居中
            ========================================== */
         .lock-center {
             position: absolute; top: 45%; left: 50%;
-            transform: translate(-50%, -50%); /* 使锁图标处于绝对正中心 */
+            transform: translate(-50%, -50%);
             display: flex; flex-direction: column; align-items: center; z-index: 2;
         }
         .lock-ring-container { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
@@ -53,24 +53,31 @@
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; }
 
         /* ==========================================
-           核心修复 1：深色区域高度增加60px (160+60=220px)，底边封严
+           核心修复：底部深色区域 (高220px) 边缘消除刺眼光芒
            ========================================== */
         .bottom-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 220px; /* 增大到 220px */
-            z-index: 1; touch-action: none; overflow: visible;
+            position: absolute; bottom: 0; left: 0; right: 0; /* 左右绝对铺满 */
+            width: 100%; height: 220px;
+            z-index: 1; touch-action: none; 
+            overflow: hidden; /* 彻底切除边缘溢出的任何锯齿 */
+            display: block; line-height: 0; font-size: 0;
         }
 
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
+        /* ==========================================
+           滑动交互层：按钮下移 20px (从80变为60)
+           ========================================== */
         .bottom-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none;
         }
 
-        /* 滑动菜单容器：向上移动 80px */
         .menu-slider {
-            position: absolute; bottom: 80px; left: 0; width: 100%; pointer-events: auto;
-            transform: translateY(calc(100% + 80px)); 
+            position: absolute; bottom: 60px; /* 向下移动了20px */
+            left: 0; width: 100%; pointer-events: auto;
+            /* 隐藏的位移同步匹配 */
+            transform: translateY(calc(100% + 60px)); 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
         }
@@ -96,7 +103,7 @@
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
             .bottom-area { height: 200px; }
-            .menu-slider { bottom: 60px; transform: translateY(calc(100% + 60px)); }
+            .menu-slider { bottom: 40px; transform: translateY(calc(100% + 40px)); }
         }
         @media (min-width: 600px) {
             .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; }
@@ -111,7 +118,7 @@
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
-        <!-- 修正了位置的中心锁环 -->
+        <!-- 锁标志居中 -->
         <div class="lock-center">
             <div class="lock-ring-container">
                 <div class="ripple-ring ring-1"></div><div class="ripple-ring ring-2"></div>
@@ -128,15 +135,15 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部交互区域，高度增加60px至220px -->
+        <!-- 底部交互区域，已修复亮边和按钮下移 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- SVG高度也顺延增加至220px -->
-            <svg class="arc-svg-bg" viewBox="0 0 110.25 220" preserveAspectRatio="none">
-                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 220 L 0 220 Z" 
-                      fill="#172f2d" stroke="#499482" stroke-width="2" />
+            <!-- 彻底移除了 stroke 描边，添加 shape-rendering 锐化，防止刺眼亮色 -->
+            <svg class="arc-svg-bg" viewBox="0 0 110.25 220" preserveAspectRatio="none" shape-rendering="crispEdges">
+                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 220 L 0 220 Z" fill="#172f2d" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
+                <!-- 按钮已整体下移 20px -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -164,7 +171,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 核心修复 3：全屏交互逻辑（支持触屏和鼠标单击，且可反复触发）
+        // 2. 核心修复：全屏逻辑（点击/触摸屏幕任意位置均能触发）
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
