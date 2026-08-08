@@ -3,322 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>保安策略</title>
+    <title>tudou</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
         body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #000; 
-            color: #ffffff;
-            user-select: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%; height: 100%; overflow: hidden; background: #000; 
+            color: #ffffff; user-select: none; display: flex; justify-content: center; align-items: center;
         }
 
         .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            position: relative;
-            justify-content: space-between;
-            background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
-            background-size: cover;
-            background-position: center;
-            overflow: hidden;
+            display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative;
+            justify-content: space-between; background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
+            background-size: cover; background-position: center; overflow: hidden;
         }
 
-        /* 横屏兜底（旋转90度保证完美比例） */
+        /* 物理横屏时的 CSS 兜底旋转，保持比例正确 */
         @media (orientation: landscape) {
             body { background: #000; }
-            .app-container {
-                width: 100vh;
-                height: 100vw;
-                transform: rotate(-90deg);
-                transform-origin: center center;
-            }
+            .app-container { width: 100vh; height: 100vw; transform: rotate(-90deg); transform-origin: center center; }
         }
 
         /* 顶部区域 */
-        .top-area {
-            padding: 25px 20px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            flex-shrink: 0;
-        }
-        
-        .top-msg {
-            width: 100%;
-            max-width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            background: rgba(0, 0, 0, 0.12);
-            border-radius: 20px;
-            padding: 8px 0; 
-            box-sizing: border-box;
-            margin-bottom: 20px;
-        }
-
-        .scroll-text {
-            display: inline-block;
-            animation: scrollRightToLeft 12s linear infinite;
-            padding: 0 10px; 
-            font-size: 13px;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        @keyframes scrollRightToLeft {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        .brand-name {
-            font-size: 34px;
-            font-weight: 700;
-            letter-spacing: 6px;
-            margin-top: 10px;
-        }
-
-        .digital-clock {
-            font-size: 46px;
-            font-weight: 200;
-            margin-top: 18px;
-            letter-spacing: 1px;
-            font-variant-numeric: tabular-nums;
-        }
+        .top-area { padding: 25px 20px 0; display: flex; flex-direction: column; align-items: center; width: 100%; flex-shrink: 0; }
+        .top-msg { width: 100%; max-width: 100%; overflow: hidden; white-space: nowrap; background: rgba(0, 0, 0, 0.12); border-radius: 20px; padding: 8px 0; box-sizing: border-box; margin-bottom: 20px; }
+        .scroll-text { display: inline-block; animation: scrollRightToLeft 12s linear infinite; padding: 0 10px; font-size: 13px; font-weight: 400; color: rgba(255, 255, 255, 0.9); }
+        @keyframes scrollRightToLeft { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .brand-name { font-size: 34px; font-weight: 700; letter-spacing: 6px; margin-top: 10px; }
+        .digital-clock { font-size: 46px; font-weight: 200; margin-top: 18px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
         /* 中心锁环区域 */
-        .lock-center {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: -30px;
-        }
-
-        .lock-ring-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .ripple-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            animation: rippleExpand 4s ease-in-out infinite;
-        }
-
+        .lock-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -30px; }
+        .lock-ring-container { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
+        .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 110px; height: 110px; background: rgba(58, 92, 99, 0.7); animation-delay: 0s; }
         .ring-2 { width: 140px; height: 140px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
         .ring-3 { width: 170px; height: 170px; background: rgba(112, 183, 171, 0.3); animation-delay: 2s; }
         .ring-4 { width: 200px; height: 200px; background: rgba(142, 212, 199, 0.15); animation-delay: 3s; }
+        @keyframes rippleExpand { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
+        .lock-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; z-index: 10; border-radius: 50%; background: #3a5c63; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+        .lock-icon-svg { width: 54px; height: 54px; fill: none; stroke: #ffffff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+        .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 0.5px; }
+        .info-date { margin-top: 6px; font-size: 15px; font-weight: 300; opacity: 0.9; }
 
-        @keyframes rippleExpand {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
-            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-        }
-
-        .lock-wrapper {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
-            z-index: 10;
-            border-radius: 50%;
-            background: #3a5c63;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .lock-icon-svg {
-            width: 54px;
-            height: 54px;
-            fill: none;
-            stroke: #ffffff;
-            stroke-width: 5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .info-text {
-            text-align: center;
-            font-size: 18px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
-        }
-        .info-date {
-            margin-top: 6px;
-            font-size: 15px;
-            font-weight: 300;
-            opacity: 0.9;
-        }
-
-        /* ============================== */
-        /*  底部可滑动菜单抽屉区域       */
-        /* ============================== */
+        /* ==========================================
+           底部深色区域 (从屏幕底部起，高320px)
+           ========================================== */
         .bottom-area {
-            position: relative;
-            width: 100%;
-            /* 核心修复：赋予绝对高度，让深色区域从弧形底部一直往下延伸，形成完整深色面板 */
-            height: 170px; 
-            touch-action: none; /* 防止干扰滑动 */
-            z-index: 1;
-            flex-shrink: 0;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 320px; /* 固定高度 320px */
+            background: #172f2d; /* 底部深色背景 */
+            z-index: 1; touch-action: none; overflow: visible;
         }
 
-        /* 底部深色背景外层（定位覆盖） */
-        .bottom-bg-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
+        /* 精确的几何 SVG 弧形 (位于高度为320px的容器顶部) */
         .arc-svg-bg {
-            display: block;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: auto;
+            /* 保持 viewBox 不变，利用自适应缩放，确保 32° 弧线在任何屏幕上都完美呈现 */
         }
 
-        /* 内容层（按钮与版本号） */
+        /* ==========================================
+           滑动交互层 (向上位移 230px)
+           ========================================== */
         .bottom-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            pointer-events: none; /* 避免遮挡底层触摸 */
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none;
         }
 
-        /* 滑动容器 */
+        /* 滑动菜单容器：将按钮相对于深色面板向上移动 230px */
         .menu-slider {
-            width: 100%;
-            pointer-events: auto; /* 恢复触摸 */
-            transform: translateY(100%); /* 默认隐藏在底部 */
+            position: absolute; bottom: 230px; /* 按钮位于深色区域顶部上方 230px 处 */
+            left: 0; width: 100%; pointer-events: auto;
+            /* 默认隐藏状态：向下移动 100% 高度 + 230px 确保隐藏 */
+            transform: translateY(calc(100% + 230px)); 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
         }
 
-        /* 打开状态（上滑） */
+        /* 打开状态：弹出到指定位置 */
         .bottom-area.open .menu-slider {
             transform: translateY(0);
         }
 
-        /* 5个按钮的网格布局 */
+        /* 按钮网格布局 (保证第二排与第一排完美垂直对齐) */
         .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: auto auto;
-            gap: 20px 0;
-            margin: 0 auto;
-            width: 100%;
-            max-width: 320px; 
-            justify-items: center;
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto;
+            gap: 20px 0; margin: 0 auto; width: 100%; max-width: 320px; justify-items: center;
         }
-
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 400;
-            width: 100%;
-        }
-        
-        .menu-item svg {
-            width: 32px;
-            height: 32px;
-            stroke: #fff;
-            fill: none;
-            stroke-width: 1.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
+        .menu-item { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; font-size: 12px; font-weight: 400; width: 100%; }
+        .menu-item svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
-        /* 版本号 */
+        /* 版本号：永远在最底层且不会遮挡 */
         .version {
-            pointer-events: auto;
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            color: #a0cdc1;
-            font-weight: 300;
-            padding-bottom: 25px; /* 保证距离按钮的距离 */
-            z-index: 10; 
+            position: absolute; bottom: 20px; left: 0; width: 100%; pointer-events: auto;
+            text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; z-index: 10;
         }
 
         /* 响应式适配 */
         @media (max-width: 360px) {
-            .digital-clock { font-size: 36px; }
-            .brand-name { font-size: 28px; letter-spacing: 4px; }
-            .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; }
-            .menu-grid { max-width: 280px; }
-            .bottom-area { height: 150px; }
+            .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
+            .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
+            .bottom-area { height: 280px; } /* 小屏做微调 */
+            .menu-slider { bottom: 190px; }
         }
         @media (min-width: 600px) {
-            .lock-ring-container { transform: scale(1.2); }
-            .digital-clock { font-size: 54px; }
+            .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-
         <div class="top-area">
-            <div class="top-msg">
-                <span class="scroll-text">1.0.1.3版: 本次更新已经完成Help Desk电话号码的修改。</span>
-            </div>
+            <div class="top-msg"><span class="scroll-text">1.0.1.3版: 本次更新已经完成Help Desk电话号码的修改。</span></div>
             <div class="brand-name">SAMSUNG</div>
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
         <div class="lock-center">
             <div class="lock-ring-container">
-                <div class="ripple-ring ring-1"></div>
-                <div class="ripple-ring ring-2"></div>
-                <div class="ripple-ring ring-3"></div>
-                <div class="ripple-ring ring-4"></div>
+                <div class="ripple-ring ring-1"></div><div class="ripple-ring ring-2"></div>
+                <div class="ripple-ring ring-3"></div><div class="ripple-ring ring-4"></div>
                 <div class="lock-wrapper">
                     <svg class="lock-icon-svg" viewBox="0 0 100 100">
                         <path d="M 35 40 V 30 a 15 15 0 0 1 30 0 V 40" />
                         <rect x="15" y="38" width="70" height="55" rx="10" />
-                        <circle cx="50" cy="62" r="5" />
-                        <path d="M 50 67 L 50 84" />
+                        <circle cx="50" cy="62" r="5" /><path d="M 50 67 L 50 84" />
                     </svg>
                 </div>
             </div>
@@ -326,134 +136,80 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部交互菜单 -->
+        <!-- 底部交互区域 -->
         <div class="bottom-area" id="bottomPanel">
-            
-            <!-- 1. 深色背景层（修正：向下延伸至屏幕底部） -->
-            <div class="bottom-bg-wrapper">
-                <svg class="arc-svg-bg" viewBox="0 0 110.25 170" preserveAspectRatio="none">
-                    <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 170 L 0 170 Z" fill="#172f2d" />
-                </svg>
-            </div>
+            <!-- 极其精确的自适应 SVG 弧形，按比例缩放不拉伸 -->
+            <svg class="arc-svg-bg" viewBox="0 0 110.25 170" preserveAspectRatio="xMidYMid meet">
+                <!-- 
+                    d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 170 L 0 170 Z" 
+                    半径为 200px，夹角 32°，经过严格几何推导的比例 
+                -->
+                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 320 L 0 320 Z" fill="#172f2d" />
+            </svg>
 
-            <!-- 2. 互动内容层 -->
             <div class="bottom-content" id="bottomContent">
+                <!-- 滑动菜单按钮 -->
                 <div class="menu-slider">
                     <div class="menu-grid">
-                        <div class="menu-item">
-                            <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg>
-                            <span>扫码</span>
-                        </div>
-                        <div class="menu-item">
-                            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M8 10h.01M12 10h.01M16 10h.01"></path></svg>
-                            <span>消息</span>
-                        </div>
-                        <div class="menu-item">
-                            <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            <span>设置</span>
-                        </div>
-                        <div class="menu-item">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                            <span>条款</span>
-                        </div>
-                        <div class="menu-item">
-                            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            <span>Help Desk</span>
-                        </div>
+                        <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
+                        <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M8 10h.01M12 10h.01M16 10h.01"></path></svg><span>消息</span></div>
+                        <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>设置</span></div>
+                        <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span>条款</span></div>
+                        <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg><span>Help Desk</span></div>
                     </div>
                 </div>
+                <!-- 版本号：固定在容器底部 20px，永远不被按钮遮挡 -->
                 <div class="version">V1.0.1.3</div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. 实时时钟与日期更新
+        // 1. 系统时钟与日期
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            
             document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
-            
-            const year = now.getFullYear();
-            const month = now.getMonth() + 1; 
-            const day = now.getDate();
+            const year = now.getFullYear(); const month = now.getMonth() + 1; const day = now.getDate();
             document.getElementById('date-display').textContent = `${year}年${month}月${day}日`;
         }
-        updateTimeAndDate();
-        setInterval(updateTimeAndDate, 1000);
+        updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 全屏交互逻辑（必须用户手势触发）
+        // 2. 手势触发全屏 (强制锁定竖屏)
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('portrait')
-                    .then(() => {
-                        if (el.requestFullscreen) el.requestFullscreen();
-                        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-                    })
-                    .catch(() => {
-                        if (el.requestFullscreen) el.requestFullscreen();
-                        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-                    });
-            } else {
-                if (el.requestFullscreen) el.requestFullscreen();
-                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            }
+                screen.orientation.lock('portrait').then(() => { if (el.requestFullscreen) el.requestFullscreen(); })
+                .catch(() => { if (el.requestFullscreen) el.requestFullscreen(); });
+            } else { if (el.requestFullscreen) el.requestFullscreen(); }
         }
         document.addEventListener('touchstart', safeFullscreen, { once: true });
-        document.addEventListener('click', safeFullscreen, { once: true });
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.addEventListener('touchstart', safeFullscreen, { once: true });
-                document.addEventListener('click', safeFullscreen, { once: true });
             }
         });
 
-        // 3. 底部抽屉交互逻辑 (修复只能滑动一次的问题)
+        // 3. 底部无限次滑动交互逻辑
         const bottomPanel = document.getElementById('bottomPanel');
-        let touchStartY = 0;
-        let touchDeltaY = 0;
-        let isSwiping = false;
+        let touchStartY = 0, touchDeltaY = 0, isSwiping = false;
 
-        // 触摸开始
-        bottomPanel.addEventListener('touchstart', function(e) {
-            touchStartY = e.touches[0].clientY;
-            touchDeltaY = 0;
-            isSwiping = false;
-        }, { passive: true });
-
-        // 触摸滑动过程
+        bottomPanel.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; touchDeltaY = 0; isSwiping = false; }, { passive: true });
         bottomPanel.addEventListener('touchmove', function(e) {
             if (touchStartY === 0) return;
-            const currentY = e.touches[0].clientY;
-            touchDeltaY = currentY - touchStartY;
-            if (Math.abs(touchDeltaY) > 10) {
-                isSwiping = true;
-                if (e.cancelable) e.preventDefault(); // 阻止浏览器原生上下滑干扰
-            }
+            const currentY = e.touches[0].clientY; touchDeltaY = currentY - touchStartY;
+            if (Math.abs(touchDeltaY) > 10) { isSwiping = true; if (e.cancelable) e.preventDefault(); }
         }, { passive: false });
-
-        // 触摸结束
         bottomPanel.addEventListener('touchend', function(e) {
-            if (!isSwiping) {
-                touchStartY = 0; touchDeltaY = 0; return;
-            }
+            if (!isSwiping) { touchStartY = 0; touchDeltaY = 0; return; }
             if (Math.abs(touchDeltaY) > 40) {
-                if (touchDeltaY < 0) bottomPanel.classList.add('open');
-                else if (touchDeltaY > 0) bottomPanel.classList.remove('open');
+                if (touchDeltaY < 0) bottomPanel.classList.add('open'); else if (touchDeltaY > 0) bottomPanel.classList.remove('open');
             }
-            // 核心修复：重置所有状态，让下一次滑动不再卡死
             touchStartY = 0; touchDeltaY = 0; isSwiping = false;
         }, { passive: true });
-
-        // 手指划出屏幕外强制重置
-        bottomPanel.addEventListener('touchcancel', function(e) {
-            touchStartY = 0; touchDeltaY = 0; isSwiping = false;
-        }, { passive: true });
-
+        bottomPanel.addEventListener('touchcancel', function(e) { touchStartY = 0; touchDeltaY = 0; isSwiping = false; }, { passive: true });
     </script>
 </body>
 </html>
