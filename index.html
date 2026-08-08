@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>165</title>
+    <title>保安策略</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -33,10 +33,16 @@
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
         /* ==========================================
-           核心修正1：文字下移，但绝对在弧形顶端之上
+           核心修正 1：文字下移，且严格在弧形边界上方
            ========================================== */
-        .lock-center { position: absolute; top: 58%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
-        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
+        .lock-center { 
+            position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); 
+            display: flex; flex-direction: column; align-items: center; z-index: 2; 
+        }
+        .lock-ring-container { 
+            position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; 
+            margin-bottom: 28px; /* 明确拉大锁与文字的间距，将文字往下压 */
+        }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 105px; height: 105px; background: rgba(58, 92, 99, 0.8); animation-delay: 0s; }
         .ring-2 { width: 135px; height: 135px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
@@ -46,35 +52,44 @@
         .lock-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95px; height: 95px; z-index: 10; border-radius: 50%; background: #3a5c63; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
         .lock-icon-svg { width: 50px; height: 50px; fill: none; stroke: #ffffff; stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; }
         
-        .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 1px; margin-top: 2px; }
+        .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 1px; margin-top: 4px; }
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; margin-top: 8px; letter-spacing: 1px; }
 
         /* ==========================================
-           核心修正2：弧形区域大幅上移，占据下三分之一
+           核心修正 2：弧形区域上移（加大高度），确保文字远离弧形
            ========================================== */
-        .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 260px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
+        .bottom-area { 
+            position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 300px; 
+            z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; 
+        }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
         /* ==========================================
-           核心修正3：按钮严格定位在深色区域内部
+           核心修正 3：按钮在深色区域内部，且上方不超过弧形边界
            ========================================== */
         .bottom-content { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             pointer-events: none; 
         }
 
-        /* 版本号固定在最底部 */
+        /* 版本号固定在最底部 (与按钮绝对物理隔离) */
         .version {
             position: absolute; bottom: 25px; left: 0; width: 100%; pointer-events: auto;
             text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; 
             z-index: 10;
         }
 
-        /* 按钮群：底部间距 210px，确保上边缘贴合弧形边界下方，且远离版本号 */
+        /* 
+           精确计算：
+           容器高 300px，弧形弦在顶部向下 45px 处。
+           为了确保按钮上方不超过弧形边界，并且完全在深色区域内：
+           按钮群向上弹出，距离底部 215px (300 - 45 - 按钮网格高度约40px)。
+           这个位置完美避开了弧形线，且深色区域的巨大留白让按钮与版本号相距极远。
+        */
         .menu-slider { 
-            position: absolute; bottom: 210px; /* 精确计算的距离 */ 
+            position: absolute; bottom: 215px; /* 精准卡位，上边缘刚好在弧形下方 */
             left: 0; width: 100%; pointer-events: auto;
-            transform: translateY(calc(100% + 210px)); 
+            transform: translateY(calc(100% + 215px)); 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
             z-index: 5;
@@ -92,8 +107,8 @@
         @media (max-width: 360px) {
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
-            .bottom-area { height: 220px; }
-            .menu-slider { bottom: 180px; transform: translateY(calc(100% + 180px)); }
+            .bottom-area { height: 260px; }
+            .menu-slider { bottom: 185px; transform: translateY(calc(100% + 185px)); }
         }
         @media (min-width: 600px) { .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; } }
     </style>
@@ -106,7 +121,7 @@
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
-        <!-- 文字已下移，且位于弧形上方 -->
+        <!-- 锁和文字已精准下移，悬停在拱顶之上 -->
         <div class="lock-center">
             <div class="lock-ring-container">
                 <div class="ripple-ring ring-1"></div><div class="ripple-ring ring-2"></div>
@@ -123,17 +138,17 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部面板交互区 (高度 260px，弧形边界大幅上移) -->
+        <!-- 底部面板交互区 (高度增加至 300px，弧形大幅上移) -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 弧度保持大拱形 -->
-            <svg class="arc-svg-bg" viewBox="0 0 153.07 260" preserveAspectRatio="none" shape-rendering="crispEdges">
-                <path d="M 0 45 A 120 120 0 0 1 153.07 45 L 153.07 260 L 0 260 Z" fill="#172f2d" />
+            <!-- 弧度使用 A 120 120 的平缓大拱，弦在顶部向下 45px 处 -->
+            <svg class="arc-svg-bg" viewBox="0 0 153.07 300" preserveAspectRatio="none" shape-rendering="crispEdges">
+                <path d="M 0 45 A 120 120 0 0 1 153.07 45 L 153.07 300 L 0 300 Z" fill="#172f2d" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
                 <div class="version">V1.0.1.3</div>
                 
-                <!-- 按钮完全贴合弧形底部，且深色区域内不越界 -->
+                <!-- 按钮精确上移，完美卡在深色区域的拱顶之下，且距离底部版本号极远 -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -148,7 +163,7 @@
     </div>
 
     <script>
-        // 1. 系统时钟与日期自动更新
+        // 1. 系统时钟与日期
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -175,32 +190,25 @@
         }
         bindFullscreenEvents();
 
-        // 3. 底部菜单手势重构（修复全屏导致的手势失效）
+        // 3. 底部菜单手势重构（全屏多次触发不失灵）
         function setupBottomPanelEvents() {
             const bottomPanel = document.getElementById('bottomPanel');
             if (!bottomPanel) return;
-
             const newPanel = bottomPanel.cloneNode(true);
             bottomPanel.parentNode.replaceChild(newPanel, bottomPanel);
             const freshPanel = document.getElementById('bottomPanel');
 
             let touchStartY = 0, touchDeltaY = 0, isSwiping = false;
-
             freshPanel.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY;
-                touchDeltaY = 0; isSwiping = false;
+                touchStartY = e.touches[0].clientY; touchDeltaY = 0; isSwiping = false;
             }, { passive: true });
-
             freshPanel.addEventListener('touchmove', function(e) {
                 if (touchStartY === 0) return;
-                const currentY = e.touches[0].clientY;
-                touchDeltaY = currentY - touchStartY;
+                const currentY = e.touches[0].clientY; touchDeltaY = currentY - touchStartY;
                 if (Math.abs(touchDeltaY) > 10) {
-                    isSwiping = true;
-                    if (e.cancelable) e.preventDefault();
+                    isSwiping = true; if (e.cancelable) e.preventDefault();
                 }
             }, { passive: false });
-
             freshPanel.addEventListener('touchend', function(e) {
                 if (!isSwiping) { touchStartY = 0; touchDeltaY = 0; return; }
                 if (Math.abs(touchDeltaY) > 40) {
@@ -209,7 +217,6 @@
                 }
                 touchStartY = 0; touchDeltaY = 0; isSwiping = false;
             }, { passive: true });
-
             freshPanel.addEventListener('touchcancel', function(e) {
                 touchStartY = 0; touchDeltaY = 0; isSwiping = false;
             }, { passive: true });
