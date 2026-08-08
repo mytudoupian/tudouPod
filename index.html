@@ -21,29 +21,6 @@
             user-select: none;
         }
 
-        /* 核心：防止横屏时页面布局崩坏，强制横屏时 UI 依然保持竖向 */
-        @media (orientation: landscape) {
-            body {
-                transform: rotate(90deg);
-                transform-origin: left top;
-                width: 100vh;
-                height: 100vw;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                /* 如果不希望出现旋转导致的转场白边，可以使用下面的旧版兼容方案，但通常这样已足够 */
-            }
-            /* 苹果 Safari 专用兼容转正 */
-            @supports (-webkit-appearance: none) {
-                body {
-                    top: 0;
-                    left: 100%;
-                    transform: rotate(-90deg);
-                    transform-origin: top left;
-                }
-            }
-        }
-
         .app-container {
             display: flex;
             flex-direction: column;
@@ -51,32 +28,6 @@
             width: 100vw;
             position: relative;
             justify-content: space-between;
-        }
-
-        /* --- 全屏控制按钮 --- */
-        #fullscreen-btn {
-            position: absolute;
-            top: 30px;
-            right: 20px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            opacity: 1;
-            visibility: visible;
-        }
-        /* 全屏状态下按钮完全隐藏 */
-        #fullscreen-btn.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
         }
 
         /* 顶部区域 */
@@ -254,7 +205,6 @@
 
         /* 响应式适配 */
         @media (max-width: 360px) {
-            #fullscreen-btn { top: 15px; right: 10px; padding: 4px 10px; font-size: 11px; }
             .digital-clock { font-size: 36px; }
             .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; }
@@ -268,8 +218,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- 新增全屏按钮 -->
-        <button id="fullscreen-btn">全屏</button>
 
         <!-- 顶部区域 -->
         <div class="top-area">
@@ -348,81 +296,33 @@
         updateTimeAndDate();
         setInterval(updateTimeAndDate, 1000);
 
-        // --- 全屏功能控制逻辑 ---
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const docElm = document.documentElement;
-
-        function isFullscreen() {
-            return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-        }
-
-        function requestFullscreen() {
-            if (docElm.requestFullscreen) {
-                return docElm.requestFullscreen().then(() => {
-                    // 核心修改：强制竖屏锁定
-                    if (screen.orientation && screen.orientation.lock) {
-                        // 先解除可能存在的旧锁定，再锁定竖屏
-                        return screen.orientation.lock('portrait').catch(e => {
-                            console.log('锁定竖屏失败 (系统可能无权限):', e);
+        // --- 页面加载后自动进入全屏 ---
+        window.addEventListener('load', () => {
+            // 加入200ms的微延迟，确保DOM计算和布局完全稳定后再触发，避免白屏/消失
+            setTimeout(() => {
+                const el = document.documentElement;
+                
+                const goFullscreen = () => {
+                    if (el.requestFullscreen) {
+                        el.requestFullscreen().then(() => {
+                            // 成功全屏后，锁定竖屏方向
+                            if (screen.orientation && screen.orientation.lock) {
+                                screen.orientation.lock('portrait').catch(e => {
+                                    console.warn('竖屏锁定失败 (这是正常的，部分手机系统限制):', e);
+                                });
+                            }
+                        }).catch(err => {
+                            // 注意：部分移动端浏览器（如最新版Chrome、Safari）要求用户手势才能触发全屏
+                            console.warn('自动全屏失败，浏览器安全策略拦截 (在手机上可能需要点击一下屏幕):', err);
                         });
+                    } else if (el.webkitRequestFullscreen) {
+                        el.webkitRequestFullscreen();
                     }
-                });
-            } else if (docElm.webkitRequestFullscreen) {
-                docElm.webkitRequestFullscreen();
-            } else if (docElm.mozRequestFullScreen) {
-                docElm.mozRequestFullScreen();
-            } else if (docElm.msRequestFullscreen) {
-                docElm.msRequestFullscreen();
-            }
-        }
-
-        function exitFullscreen() {
-            if (document.exitFullscreen) {
-                return document.exitFullscreen().then(() => {
-                    if (screen.orientation && screen.orientation.unlock) {
-                        screen.orientation.unlock();
-                    }
-                });
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            }
-        }
-
-        function toggleButtonVisibility() {
-            if (isFullscreen()) {
-                fullscreenBtn.classList.add('hidden');
-            } else {
-                fullscreenBtn.classList.remove('hidden');
-            }
-        }
-
-        document.addEventListener('fullscreenchange', toggleButtonVisibility);
-        document.addEventListener('webkitfullscreenchange', toggleButtonVisibility);
-        document.addEventListener('mozfullscreenchange', toggleButtonVisibility);
-        document.addEventListener('MSFullscreenChange', toggleButtonVisibility);
-
-        fullscreenBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (!isFullscreen()) {
-                requestFullscreen();
-                setTimeout(() => toggleButtonVisibility(), 200);
-            } else {
-                exitFullscreen();
-            }
+                };
+                
+                goFullscreen();
+            }, 200);
         });
-
-        if (window.ResizeObserver) {
-            const resizeObserver = new ResizeObserver(() => {
-                if (!isFullscreen()) {
-                    fullscreenBtn.classList.remove('hidden');
-                }
-            });
-            resizeObserver.observe(document.body);
-        }
     </script>
 </body>
 </html>
