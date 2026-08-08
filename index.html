@@ -33,7 +33,7 @@
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
         /* ==========================================
-           核心修正 1：文字下移，且严格在弧形边界上方
+           锁和文字下移区域
            ========================================== */
         .lock-center { 
             position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); 
@@ -41,7 +41,7 @@
         }
         .lock-ring-container { 
             position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; 
-            margin-bottom: 28px; /* 明确拉大锁与文字的间距，将文字往下压 */
+            margin-bottom: 28px;
         }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 105px; height: 105px; background: rgba(58, 92, 99, 0.8); animation-delay: 0s; }
@@ -56,7 +56,7 @@
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; margin-top: 8px; letter-spacing: 1px; }
 
         /* ==========================================
-           核心修正 2：弧形区域上移（加大高度），确保文字远离弧形
+           底部深色区域
            ========================================== */
         .bottom-area { 
             position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 300px; 
@@ -65,31 +65,27 @@
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
         /* ==========================================
-           核心修正 3：按钮在深色区域内部，且上方不超过弧形边界
+           按钮及底部内容层
            ========================================== */
         .bottom-content { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             pointer-events: none; 
         }
 
-        /* 版本号固定在最底部 (与按钮绝对物理隔离) */
+        /* 版本号 */
         .version {
             position: absolute; bottom: 25px; left: 0; width: 100%; pointer-events: auto;
             text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; 
             z-index: 10;
         }
 
-        /* 
-           精确计算：
-           容器高 300px，弧形弦在顶部向下 45px 处。
-           为了确保按钮上方不超过弧形边界，并且完全在深色区域内：
-           按钮群向上弹出，距离底部 215px (300 - 45 - 按钮网格高度约40px)。
-           这个位置完美避开了弧形线，且深色区域的巨大留白让按钮与版本号相距极远。
-        */
+        /* ==========================================
+           核心修改：按钮整体往上移动了20px（原215，现195）
+           ========================================== */
         .menu-slider { 
-            position: absolute; bottom: 215px; /* 精准卡位，上边缘刚好在弧形下方 */
+            position: absolute; bottom: 195px; /* 向上提了20px，更加贴近弧形边缘 */ 
             left: 0; width: 100%; pointer-events: auto;
-            transform: translateY(calc(100% + 215px)); 
+            transform: translateY(calc(100% + 195px)); /* 隐藏状态同步更新 */ 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
             z-index: 5;
@@ -104,11 +100,12 @@
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
+        /* 极小屏适配 */
         @media (max-width: 360px) {
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
             .bottom-area { height: 260px; }
-            .menu-slider { bottom: 185px; transform: translateY(calc(100% + 185px)); }
+            .menu-slider { bottom: 165px; transform: translateY(calc(100% + 165px)); }
         }
         @media (min-width: 600px) { .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; } }
     </style>
@@ -121,7 +118,7 @@
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
-        <!-- 锁和文字已精准下移，悬停在拱顶之上 -->
+        <!-- 锁和文字 -->
         <div class="lock-center">
             <div class="lock-ring-container">
                 <div class="ripple-ring ring-1"></div><div class="ripple-ring ring-2"></div>
@@ -138,9 +135,9 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部面板交互区 (高度增加至 300px，弧形大幅上移) -->
+        <!-- 底部面板交互区 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 弧度使用 A 120 120 的平缓大拱，弦在顶部向下 45px 处 -->
+            <!-- 弧度 (弦在顶部向下 45px 处) -->
             <svg class="arc-svg-bg" viewBox="0 0 153.07 300" preserveAspectRatio="none" shape-rendering="crispEdges">
                 <path d="M 0 45 A 120 120 0 0 1 153.07 45 L 153.07 300 L 0 300 Z" fill="#172f2d" />
             </svg>
@@ -148,7 +145,7 @@
             <div class="bottom-content" id="bottomContent">
                 <div class="version">V1.0.1.3</div>
                 
-                <!-- 按钮精确上移，完美卡在深色区域的拱顶之下，且距离底部版本号极远 -->
+                <!-- 按钮已在当前版基础上移 20px -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -163,7 +160,6 @@
     </div>
 
     <script>
-        // 1. 系统时钟与日期
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -175,7 +171,6 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 单击/触摸全屏交互
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
@@ -190,7 +185,6 @@
         }
         bindFullscreenEvents();
 
-        // 3. 底部菜单手势重构（全屏多次触发不失灵）
         function setupBottomPanelEvents() {
             const bottomPanel = document.getElementById('bottomPanel');
             if (!bottomPanel) return;
