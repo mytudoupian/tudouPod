@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>tudou</title>
+    <title>保安策略</title>
     <style>
         * {
             margin: 0;
@@ -19,6 +19,29 @@
             background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
             color: #ffffff;
             user-select: none;
+        }
+
+        /* 核心：防止横屏时页面布局崩坏，强制横屏时 UI 依然保持竖向 */
+        @media (orientation: landscape) {
+            body {
+                transform: rotate(90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                /* 如果不希望出现旋转导致的转场白边，可以使用下面的旧版兼容方案，但通常这样已足够 */
+            }
+            /* 苹果 Safari 专用兼容转正 */
+            @supports (-webkit-appearance: none) {
+                body {
+                    top: 0;
+                    left: 100%;
+                    transform: rotate(-90deg);
+                    transform-origin: top left;
+                }
+            }
         }
 
         .app-container {
@@ -329,15 +352,21 @@
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const docElm = document.documentElement;
 
-        // 判断当前是否已全屏 (兼容主流浏览器和 iOS Safari)
         function isFullscreen() {
             return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
         }
 
-        // 请求全屏 (兼容各浏览器)
         function requestFullscreen() {
             if (docElm.requestFullscreen) {
-                docElm.requestFullscreen();
+                return docElm.requestFullscreen().then(() => {
+                    // 核心修改：强制竖屏锁定
+                    if (screen.orientation && screen.orientation.lock) {
+                        // 先解除可能存在的旧锁定，再锁定竖屏
+                        return screen.orientation.lock('portrait').catch(e => {
+                            console.log('锁定竖屏失败 (系统可能无权限):', e);
+                        });
+                    }
+                });
             } else if (docElm.webkitRequestFullscreen) {
                 docElm.webkitRequestFullscreen();
             } else if (docElm.mozRequestFullScreen) {
@@ -347,10 +376,13 @@
             }
         }
 
-        // 退出全屏
         function exitFullscreen() {
             if (document.exitFullscreen) {
-                document.exitFullscreen();
+                return document.exitFullscreen().then(() => {
+                    if (screen.orientation && screen.orientation.unlock) {
+                        screen.orientation.unlock();
+                    }
+                });
             } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
             } else if (document.mozCancelFullScreen) {
@@ -360,7 +392,6 @@
             }
         }
 
-        // 切换按钮状态 (全屏时隐藏按钮)
         function toggleButtonVisibility() {
             if (isFullscreen()) {
                 fullscreenBtn.classList.add('hidden');
@@ -369,26 +400,21 @@
             }
         }
 
-        // 监听浏览器全屏状态变化事件
         document.addEventListener('fullscreenchange', toggleButtonVisibility);
         document.addEventListener('webkitfullscreenchange', toggleButtonVisibility);
         document.addEventListener('mozfullscreenchange', toggleButtonVisibility);
         document.addEventListener('MSFullscreenChange', toggleButtonVisibility);
 
-        // 点击按钮触发全屏
         fullscreenBtn.addEventListener('click', function(e) {
-            e.stopPropagation(); // 防止冒泡
+            e.stopPropagation();
             if (!isFullscreen()) {
                 requestFullscreen();
-                // 在部分 iOS Safari 上，进入全屏时不会立刻触发 fullscreenchange，主动控制一次
                 setTimeout(() => toggleButtonVisibility(), 200);
             } else {
                 exitFullscreen();
             }
         });
 
-        // 兼容用户通过手势下拉回退等非API方式退出全屏 (主动监听窗口大小和视觉变化)
-        // 因为部分移动端浏览器没有抛出全屏退出事件，我们使用 ResizeObserver 辅助判断
         if (window.ResizeObserver) {
             const resizeObserver = new ResizeObserver(() => {
                 if (!isFullscreen()) {
