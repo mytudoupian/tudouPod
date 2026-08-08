@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>保安策略</title>
+    <title>土豆</title>
     <style>
         * {
             margin: 0;
@@ -16,7 +16,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #000; /* 物理横屏时的底色（如果是非标准比例留出的边） */
+            background: #000; 
             color: #ffffff;
             user-select: none;
             display: flex;
@@ -24,7 +24,6 @@
             align-items: center;
         }
 
-        /* 核心容器：背景放置在容器内，确保旋转时背景也跟着转，不会错位 */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -32,19 +31,15 @@
             width: 100vw;
             position: relative;
             justify-content: space-between;
-            /* 背景渐变色转移到这里 */
             background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
             background-size: cover;
             background-position: center;
         }
 
-        /* 物理横屏时的兜底(解决横屏变形、宽高比例问题) */
+        /* 横屏兜底(物理横屏时旋转90度保证比例) */
         @media (orientation: landscape) {
-            body {
-                background: #000; /* 两边的黑边 */
-            }
+            body { background: #000; }
             .app-container {
-                /* 将竖屏设计完美旋转90度，宽高互换，比例完全一致，无拉伸 */
                 width: 100vh;
                 height: 100vw;
                 transform: rotate(-90deg);
@@ -182,21 +177,40 @@
             opacity: 0.9;
         }
 
-        /* 底部菜单面板 */
-        .bottom-panel {
+        /* ============================== */
+        /*  底部可滑动菜单抽屉区域       */
+        /* ============================== */
+        .bottom-area {
+            position: relative;
+            width: 100%;
             background: rgba(23, 51, 45, 0.95);
             border-radius: 40px 40px 0 0;
-            padding: 30px 15px 15px;
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: auto auto;
-            gap: 20px 0;
-            justify-items: center;
-            align-items: start;
-            position: relative;
+            overflow: hidden;
+            padding-bottom: 15px; /* 给版本号留足空间 */
         }
 
+        /* 滑动容器 */
+        .menu-slider {
+            width: 100%;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateY(100%); /* 默认隐藏在底部 */
+            padding: 25px 15px 10px;
+        }
+
+        /* 打开状态 */
+        .bottom-area.open .menu-slider {
+            transform: translateY(0);
+        }
+
+        /* 5个按钮的网格布局 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 0;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 350px;
+        }
         .menu-item {
             display: flex;
             flex-direction: column;
@@ -215,14 +229,21 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
+        /* 让第二行的两个按钮居中对齐 */
+        .menu-item:nth-child(4) { grid-column: 1; justify-self: end; padding-right: 15px; }
+        .menu-item:nth-child(5) { grid-column: 2; justify-self: start; padding-left: 15px; }
 
+        /* 底部固定版本号 */
         .version {
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
             text-align: center;
             font-size: 12px;
-            padding: 10px 0 20px;
             color: #a0cdc1;
             font-weight: 300;
-            background: rgba(23, 51, 45, 0.95);
+            pointer-events: none;
+            z-index: 5;
         }
 
         /* 响应式适配 */
@@ -230,7 +251,9 @@
             .digital-clock { font-size: 36px; }
             .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; }
-            .bottom-panel { padding: 20px 10px 10px; }
+            .menu-grid { max-width: 300px; }
+            .menu-item:nth-child(4) { padding-right: 0; }
+            .menu-item:nth-child(5) { padding-left: 0; }
         }
         @media (min-width: 600px) {
             .lock-ring-container { transform: scale(1.2); }
@@ -246,7 +269,6 @@
             <div class="top-msg">
                 <span class="scroll-text">1.0.1.3版: 本次更新已经完成Help Desk电话号码的修改。</span>
             </div>
-            
             <div class="brand-name">SAMSUNG</div>
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
@@ -258,7 +280,6 @@
                 <div class="ripple-ring ring-2"></div>
                 <div class="ripple-ring ring-3"></div>
                 <div class="ripple-ring ring-4"></div>
-                
                 <div class="lock-wrapper">
                     <svg class="lock-icon-svg" viewBox="0 0 100 100">
                         <path d="M 35 40 V 30 a 15 15 0 0 1 30 0 V 40" />
@@ -272,30 +293,36 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部菜单 -->
-        <div>
-            <div class="bottom-panel">
-                <div class="menu-item">
-                    <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg>
-                    <span>扫码</span>
-                </div>
-                <div class="menu-item">
-                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M8 10h.01M12 10h.01M16 10h.01"></path></svg>
-                    <span>消息</span>
-                </div>
-                <div class="menu-item">
-                    <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    <span>设置</span>
-                </div>
-                <div class="menu-item" style="grid-column: 1;">
-                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    <span>条款</span>
-                </div>
-                <div class="menu-item" style="grid-column: 2;">
-                    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                    <span>Help Desk</span>
+        <!-- ================= 交互底部菜单 ================= -->
+        <div class="bottom-area" id="bottomPanel">
+            
+            <!-- 滑动弹出层 -->
+            <div class="menu-slider">
+                <div class="menu-grid">
+                    <div class="menu-item">
+                        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg>
+                        <span>扫码</span>
+                    </div>
+                    <div class="menu-item">
+                        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M8 10h.01M12 10h.01M16 10h.01"></path></svg>
+                        <span>消息</span>
+                    </div>
+                    <div class="menu-item">
+                        <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>设置</span>
+                    </div>
+                    <div class="menu-item">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <span>条款</span>
+                    </div>
+                    <div class="menu-item">
+                        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span>Help Desk</span>
+                    </div>
                 </div>
             </div>
+
+            <!-- 底部固定版本号 -->
             <div class="version">V1.0.1.3</div>
         </div>
     </div>
@@ -318,48 +345,75 @@
         updateTimeAndDate();
         setInterval(updateTimeAndDate, 1000);
 
-        // 2. 安全且稳定的全屏+竖屏锁定
+        // 2. 全屏交互逻辑（必须用户手势触发）
         function safeFullscreen() {
             const el = document.documentElement;
-            
-            // 先请求竖屏锁定，再请求全屏（防止屏幕翻转）
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait')
                     .then(() => {
-                        if (el.requestFullscreen) {
-                            el.requestFullscreen();
-                        } else if (el.webkitRequestFullscreen) {
-                            el.webkitRequestFullscreen();
-                        }
+                        if (el.requestFullscreen) el.requestFullscreen();
+                        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
                     })
                     .catch(() => {
-                        // 锁定失败的回退（配合CSS兜底，保证比例不变）
-                        if (el.requestFullscreen) {
-                            el.requestFullscreen();
-                        } else if (el.webkitRequestFullscreen) {
-                            el.webkitRequestFullscreen();
-                        }
+                        if (el.requestFullscreen) el.requestFullscreen();
+                        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
                     });
             } else {
-                if (el.requestFullscreen) {
-                    el.requestFullscreen();
-                } else if (el.webkitRequestFullscreen) {
-                    el.webkitRequestFullscreen();
-                }
+                if (el.requestFullscreen) el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
             }
         }
-
-        // 用户点击/触碰时才触发（满足浏览器安全策略）
         document.addEventListener('touchstart', safeFullscreen, { once: true });
         document.addEventListener('click', safeFullscreen, { once: true });
-
-        // 如果用户通过手势退出全屏，重新绑定一次触摸监听
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.addEventListener('touchstart', safeFullscreen, { once: true });
                 document.addEventListener('click', safeFullscreen, { once: true });
             }
         });
+
+        // ========================================
+        // 3. 底部抽屉的 上滑/下拉 交互逻辑
+        // ========================================
+        const bottomPanel = document.getElementById('bottomPanel');
+        let startY = 0;
+        let deltaY = 0;
+
+        // 触摸开始
+        bottomPanel.addEventListener('touchstart', function(e) {
+            // 记录第一次触摸的 Y 坐标
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        // 触摸滑动过程
+        bottomPanel.addEventListener('touchmove', function(e) {
+            // 实时计算滑动距离，用于判断方向
+            const currentY = e.touches[0].clientY;
+            deltaY = currentY - startY;
+        }, { passive: true });
+
+        // 触摸结束
+        bottomPanel.addEventListener('touchend', function(e) {
+            // 如果滑动的距离太小（没达到阈值），不触发任何操作
+            const threshold = 40; 
+            if (Math.abs(deltaY) < threshold) {
+                deltaY = 0; // 重置
+                return;
+            }
+
+            // deltaY < 0 => 手指往上滑，打开菜单
+            if (deltaY < 0) {
+                bottomPanel.classList.add('open');
+            } 
+            // deltaY > 0 => 手指往下滑，关闭菜单
+            else if (deltaY > 0) {
+                bottomPanel.classList.remove('open');
+            }
+            
+            // 重置滑动记录
+            deltaY = 0;
+        }, { passive: true });
+
     </script>
 </body>
 </html>
