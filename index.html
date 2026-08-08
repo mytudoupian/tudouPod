@@ -33,10 +33,10 @@
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
         /* ==========================================
-           核心修复1：锁及文字整体下移、间距拉开
+           核心修正1：锁和文字明显向上移动，远离深色区域
            ========================================== */
-        .lock-center { position: absolute; top: 53%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
-        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 40px; /* 锁与文字间距大幅度拉开 */ }
+        .lock-center { position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
+        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px; /* 缩小间距，让文字更贴近锁 */ }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
         .ring-1 { width: 105px; height: 105px; background: rgba(58, 92, 99, 0.8); animation-delay: 0s; }
         .ring-2 { width: 135px; height: 135px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
@@ -50,31 +50,31 @@
         .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; margin-top: 8px; letter-spacing: 1px; }
 
         /* ==========================================
-           底部深色面板 (保留大弧度效果)
+           核心修正2：底部深色区域大幅下移（高度缩减）
            ========================================== */
-        .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 280px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
+        .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 150px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
         /* ==========================================
-           核心修复2：使用绝对定位强行隔离按钮与版本号，绝不遮挡
+           核心修正3：按钮重新定位，避免遮挡文字
            ========================================== */
         .bottom-content { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             pointer-events: none; 
         }
 
-        /* 版本号：牢固地钉在屏幕最底部 */
+        /* 版本号固定在最底部 */
         .version {
             position: absolute; bottom: 15px; left: 0; width: 100%; pointer-events: auto;
             text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; 
-            z-index: 10; /* 保证即使发生误触，版本号也在按钮之上 */
+            z-index: 10;
         }
 
-        /* 按钮群：一飞冲天，大幅上移，且永远碰不到版本号 */
+        /* 按钮群弹出到合适高度，与深色面板顶部留有适当间隙 */
         .menu-slider { 
-            position: absolute; bottom: 120px; /* 距离底部 120px，实现大幅上移 */ 
+            position: absolute; bottom: 100px; /* 距离屏幕底部 100px，确保按钮不会弹到文字区域 */ 
             left: 0; width: 100%; pointer-events: auto;
-            transform: translateY(calc(100% + 120px)); /* 隐藏时下移 */
+            transform: translateY(calc(100% + 100px)); 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
             z-index: 5;
@@ -92,8 +92,8 @@
         @media (max-width: 360px) {
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
-            .bottom-area { height: 240px; }
-            .menu-slider { bottom: 100px; transform: translateY(calc(100% + 100px)); } /* 小屏自适应下移 */
+            .bottom-area { height: 130px; }
+            .menu-slider { bottom: 80px; transform: translateY(calc(100% + 80px)); }
         }
         @media (min-width: 600px) { .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; } }
     </style>
@@ -106,6 +106,7 @@
             <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
+        <!-- 锁与文字已上移，现处于屏幕偏上视觉中心 -->
         <div class="lock-center">
             <div class="lock-ring-container">
                 <div class="ripple-ring ring-1"></div><div class="ripple-ring ring-2"></div>
@@ -122,19 +123,15 @@
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部面板交互区 -->
+        <!-- 底部面板交互区 (高度压缩至 150px) -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 大弧度，拱高 45 -->
-            <svg class="arc-svg-bg" viewBox="0 0 153.07 280" preserveAspectRatio="none" shape-rendering="crispEdges">
-                <path d="M 0 45 A 120 120 0 0 1 153.07 45 L 153.07 280 L 0 280 Z" fill="#172f2d" />
+            <!-- 弧度保持不变，但容器高度变低，视觉上整体下移 -->
+            <svg class="arc-svg-bg" viewBox="0 0 153.07 150" preserveAspectRatio="none" shape-rendering="crispEdges">
+                <path d="M 0 45 A 120 120 0 0 1 153.07 45 L 153.07 150 L 0 150 Z" fill="#172f2d" />
             </svg>
 
-            <!-- 底部内容分层区域 -->
             <div class="bottom-content" id="bottomContent">
-                
-                <!-- 核心布局：版本号与按钮彻底隔离 -->
                 <div class="version">V1.0.1.3</div>
-                
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
