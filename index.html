@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>tudou</title>
+    <title>保安策略</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -18,7 +18,7 @@
             background-size: cover; background-position: center; overflow: hidden;
         }
 
-        /* 物理横屏时的 CSS 兜底旋转，保持比例正确 */
+        /* 物理横屏兜底 */
         @media (orientation: landscape) {
             body { background: #000; }
             .app-container { width: 100vh; height: 100vw; transform: rotate(-90deg); transform-origin: center center; }
@@ -47,34 +47,32 @@
         .info-date { margin-top: 6px; font-size: 15px; font-weight: 300; opacity: 0.9; }
 
         /* ==========================================
-           底部深色区域 (从屏幕底部起，高320px)
+           底部深色区域 (从屏幕底部起，高 160px)
            ========================================== */
         .bottom-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 320px; /* 固定高度 320px */
-            background: #172f2d; /* 底部深色背景 */
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 160px; /* 高度改为 160px */
             z-index: 1; touch-action: none; overflow: visible;
         }
 
-        /* 精确的几何 SVG 弧形 (位于高度为320px的容器顶部) */
+        /* 完美的半圆弧形边缘线 */
         .arc-svg-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: auto;
-            /* 保持 viewBox 不变，利用自适应缩放，确保 32° 弧线在任何屏幕上都完美呈现 */
+            display: block; width: 100%; height: 100%;
         }
 
         /* ==========================================
-           滑动交互层 (向上位移 230px)
+           滑动交互层 (按钮向上位移 80px)
            ========================================== */
         .bottom-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none;
         }
 
-        /* 滑动菜单容器：将按钮相对于深色面板向上移动 230px */
+        /* 滑动菜单容器：相对于深色面板向上移动 80px */
         .menu-slider {
-            position: absolute; bottom: 230px; /* 按钮位于深色区域顶部上方 230px 处 */
+            position: absolute; bottom: 80px; /* 修改为 80px */
             left: 0; width: 100%; pointer-events: auto;
-            /* 默认隐藏状态：向下移动 100% 高度 + 230px 确保隐藏 */
-            transform: translateY(calc(100% + 230px)); 
+            /* 隐藏位移改为 100% + 80px */
+            transform: translateY(calc(100% + 80px)); 
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
         }
@@ -84,7 +82,7 @@
             transform: translateY(0);
         }
 
-        /* 按钮网格布局 (保证第二排与第一排完美垂直对齐) */
+        /* 按钮网格布局 */
         .menu-grid {
             display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto;
             gap: 20px 0; margin: 0 auto; width: 100%; max-width: 320px; justify-items: center;
@@ -94,7 +92,7 @@
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
-        /* 版本号：永远在最底层且不会遮挡 */
+        /* 版本号 */
         .version {
             position: absolute; bottom: 20px; left: 0; width: 100%; pointer-events: auto;
             text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; z-index: 10;
@@ -104,8 +102,8 @@
         @media (max-width: 360px) {
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
-            .bottom-area { height: 280px; } /* 小屏做微调 */
-            .menu-slider { bottom: 190px; }
+            .bottom-area { height: 140px; }
+            .menu-slider { bottom: 60px; transform: translateY(calc(100% + 60px)); }
         }
         @media (min-width: 600px) {
             .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; }
@@ -138,13 +136,15 @@
 
         <!-- 底部交互区域 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 极其精确的自适应 SVG 弧形，按比例缩放不拉伸 -->
-            <svg class="arc-svg-bg" viewBox="0 0 110.25 170" preserveAspectRatio="xMidYMid meet">
+            <!-- 核心修复：弧形边界不再消失。加入了 1px 的描边（stroke），完美还原分割线 -->
+            <svg class="arc-svg-bg" viewBox="0 0 110.25 160" preserveAspectRatio="none">
                 <!-- 
-                    d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 170 L 0 170 Z" 
-                    半径为 200px，夹角 32°，经过严格几何推导的比例 
+                    保持 200px 半径，32° 角的基础比例。
+                    viewBox 等于当前 160px 容器高度，确保填满整个底部。
+                    加入 stroke="#3b6e66" 和 stroke-width="2"，重现清亮的弧形割线。
                 -->
-                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 320 L 0 320 Z" fill="#172f2d" />
+                <path d="M 0 7.74 A 200 200 0 0 1 110.25 7.74 L 110.25 160 L 0 160 Z" 
+                      fill="#172f2d" stroke="#499482" stroke-width="2" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
@@ -158,7 +158,6 @@
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg><span>Help Desk</span></div>
                     </div>
                 </div>
-                <!-- 版本号：固定在容器底部 20px，永远不被按钮遮挡 -->
                 <div class="version">V1.0.1.3</div>
             </div>
         </div>
@@ -177,7 +176,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 手势触发全屏 (强制锁定竖屏)
+        // 2. 手势触发全屏 
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
