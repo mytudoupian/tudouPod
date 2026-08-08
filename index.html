@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>tudou</title>
+    <title>保安策略</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -14,7 +14,7 @@
 
         .app-container {
             display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative;
-            justify-content: space-between; background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
+            justify-content: space-between; background: linear-gradient(180deg, #87d6cc 0%, #439485 35%, #16574c 100%);
             background-size: cover; background-position: center; overflow: hidden;
         }
 
@@ -32,45 +32,46 @@
         .brand-name { font-size: 34px; font-weight: 700; letter-spacing: 6px; margin-top: 10px; }
         .digital-clock { font-size: 46px; font-weight: 200; margin-top: 15px; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-        /* 中心锁区域 (精确居中) */
-        .lock-center { position: absolute; top: 43%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
-        .lock-ring-container { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
+        /* 中心锁区域 (根据原图位置精准上移至 44% 处) */
+        .lock-center { position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 2; }
+        .lock-ring-container { position: relative; width: 190px; height: 190px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px; }
         .ripple-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); animation: rippleExpand 4s ease-in-out infinite; }
-        .ring-1 { width: 110px; height: 110px; background: rgba(58, 92, 99, 0.7); animation-delay: 0s; }
-        .ring-2 { width: 140px; height: 140px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
-        .ring-3 { width: 170px; height: 170px; background: rgba(112, 183, 171, 0.3); animation-delay: 2s; }
-        .ring-4 { width: 200px; height: 200px; background: rgba(142, 212, 199, 0.15); animation-delay: 3s; }
+        .ring-1 { width: 105px; height: 105px; background: rgba(58, 92, 99, 0.8); animation-delay: 0s; }
+        .ring-2 { width: 135px; height: 135px; background: rgba(91, 156, 150, 0.5); animation-delay: 1s; }
+        .ring-3 { width: 165px; height: 165px; background: rgba(112, 183, 171, 0.35); animation-delay: 2s; }
+        .ring-4 { width: 190px; height: 190px; background: rgba(142, 212, 199, 0.2); animation-delay: 3s; }
         @keyframes rippleExpand { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
-        .lock-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; z-index: 10; border-radius: 50%; background: #3a5c63; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
-        .lock-icon-svg { width: 54px; height: 54px; fill: none; stroke: #ffffff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+        .lock-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95px; height: 95px; z-index: 10; border-radius: 50%; background: #3a5c63; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+        .lock-icon-svg { width: 50px; height: 50px; fill: none; stroke: #ffffff; stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; }
         
-        /* 锁下方文字调整 */
-        .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; }
+        /* 锁下方文字 (原图间距还原) */
+        .info-text { text-align: center; font-size: 18px; font-weight: 400; letter-spacing: 1px; margin-top: 4px; }
+        .info-date { font-size: 15px; font-weight: 300; opacity: 0.9; margin-top: 8px; letter-spacing: 1px; }
 
-        /* 底部深色面板 (高度及弧度精确匹配原图比例) */
-        .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 140px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
+        /* 底部深色面板 (参考原图比例，高度提高，占据下方三分之一) */
+        .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 280px; z-index: 1; touch-action: none; overflow: hidden; display: block; line-height: 0; font-size: 0; }
         .arc-svg-bg { display: block; width: 100%; height: 100%; }
 
-        /* 交互弹出层 (隐藏菜单) */
+        /* 交互弹出层 (上滑隐藏、下拉出现) */
         .bottom-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; }
-        .menu-slider { position: absolute; bottom: 40px; left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 40px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
+        .menu-slider { position: absolute; bottom: 60px; left: 0; width: 100%; pointer-events: auto; transform: translateY(calc(100% + 60px)); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px 0 0; }
         .bottom-area.open .menu-slider { transform: translateY(0); }
 
-        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 20px 0; margin: 0 auto; width: 100%; max-width: 320px; justify-items: center; }
+        /* 按钮网格布局 (严格对齐原图) */
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 24px 0; margin: 0 auto; width: 100%; max-width: 340px; justify-items: center; }
         .menu-item { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; font-size: 12px; font-weight: 400; width: 100%; }
         .menu-item svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
         .menu-item:nth-child(4) { grid-column: 1; }
         .menu-item:nth-child(5) { grid-column: 2; }
 
         /* 底部版本号 */
-        .version { position: absolute; bottom: 25px; left: 0; width: 100%; pointer-events: auto; text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; z-index: 10; }
+        .version { position: absolute; bottom: 30px; left: 0; width: 100%; pointer-events: auto; text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; z-index: 10; }
 
         @media (max-width: 360px) {
             .digital-clock { font-size: 36px; } .brand-name { font-size: 28px; letter-spacing: 4px; }
             .lock-ring-container { transform: scale(0.75); margin-bottom: -10px; } .menu-grid { max-width: 280px; }
-            .bottom-area { height: 120px; }
-            .menu-slider { bottom: 20px; transform: translateY(calc(100% + 20px)); }
+            .bottom-area { height: 240px; }
+            .menu-slider { bottom: 40px; transform: translateY(calc(100% + 40px)); }
         }
         @media (min-width: 600px) { .lock-ring-container { transform: scale(1.2); } .digital-clock { font-size: 54px; } }
     </style>
@@ -78,9 +79,9 @@
 <body>
     <div class="app-container">
         <div class="top-area">
-            <div class="top-msg"><span class="scroll-text">版本：本次更新已经完成Help Desk电话号码的修改。</span></div>
+            <div class="top-msg"><span class="scroll-text">已完成 Help Desk 电话号码的修改。</span></div>
             <div class="brand-name">SAMSUNG</div>
-            <div class="digital-clock" id="clock-display">17:33:48</div>
+            <div class="digital-clock" id="clock-display">17:34:21</div>
         </div>
 
         <div class="lock-center">
@@ -95,18 +96,19 @@
                     </svg>
                 </div>
             </div>
-            <div class="info-text">请退出录屏操作</div>
+            <div class="info-text">保安策略已开启</div>
             <div class="info-date" id="date-display">2026年8月6日</div>
         </div>
 
-        <!-- 底部区域 -->
+        <!-- 底部面板交互区 -->
         <div class="bottom-area" id="bottomPanel">
-            <!-- 原图微拱弧形布局，拱起高度严格依据原图视觉比例 -->
-            <svg class="arc-svg-bg" viewBox="0 0 153.07 140" preserveAspectRatio="none" shape-rendering="crispEdges">
-                <path d="M 0 15.22 A 200 200 0 0 1 153.07 15.22 L 153.07 140 L 0 140 Z" fill="#172f2d" />
+            <!-- 使用超大半径曲线生成平缓且较宽的原图拱形，完全消除亮边 -->
+            <svg class="arc-svg-bg" viewBox="0 0 153.07 280" preserveAspectRatio="none" shape-rendering="crispEdges">
+                <path d="M 0 25 A 600 600 0 0 1 153.07 25 L 153.07 280 L 0 280 Z" fill="#172f2d" />
             </svg>
 
             <div class="bottom-content" id="bottomContent">
+                <!-- 向上滑出 80px 出现 (60 + 20) -->
                 <div class="menu-slider">
                     <div class="menu-grid">
                         <div class="menu-item"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7zM6 6h1v1H6zM6 17h1v1H6zM17 6h1v1h-1zM17 17h1v1h-1z"></path></svg><span>扫码</span></div>
@@ -122,7 +124,7 @@
     </div>
 
     <script>
-        // 1. 系统时钟与日期
+        // 1. 系统时钟与日期自动更新
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -134,7 +136,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 全屏触控逻辑（单击屏幕任意位置自动全屏）
+        // 2. 单击/触摸全屏交互 (兼容现代浏览器安全策略)
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
@@ -149,28 +151,21 @@
         }
         bindFullscreenEvents();
 
-        // ----------------------------------------------------------
-        // 3. 底部交互手势重构（彻底解决全屏后手势识别失效的问题）
-        // ----------------------------------------------------------
+        // 3. 底部菜单手势重构（修复全屏导致的手势失效）
         function setupBottomPanelEvents() {
             const bottomPanel = document.getElementById('bottomPanel');
             if (!bottomPanel) return;
 
-            // 使用节点克隆彻底解绑旧事件，防止全屏状态切换导致的事件失效
+            // 克隆并替换节点，强制性解绑旧事件（全屏时避免事件系统卡死）
             const newPanel = bottomPanel.cloneNode(true);
             bottomPanel.parentNode.replaceChild(newPanel, bottomPanel);
-
-            // 重新获取新挂载的DOM节点
             const freshPanel = document.getElementById('bottomPanel');
 
-            let touchStartY = 0;
-            let touchDeltaY = 0;
-            let isSwiping = false;
+            let touchStartY = 0, touchDeltaY = 0, isSwiping = false;
 
             freshPanel.addEventListener('touchstart', function(e) {
                 touchStartY = e.touches[0].clientY;
-                touchDeltaY = 0;
-                isSwiping = false;
+                touchDeltaY = 0; isSwiping = false;
             }, { passive: true });
 
             freshPanel.addEventListener('touchmove', function(e) {
@@ -184,9 +179,7 @@
             }, { passive: false });
 
             freshPanel.addEventListener('touchend', function(e) {
-                if (!isSwiping) {
-                    touchStartY = 0; touchDeltaY = 0; return;
-                }
+                if (!isSwiping) { touchStartY = 0; touchDeltaY = 0; return; }
                 if (Math.abs(touchDeltaY) > 40) {
                     if (touchDeltaY < 0) freshPanel.classList.add('open');
                     else if (touchDeltaY > 0) freshPanel.classList.remove('open');
@@ -202,15 +195,10 @@
         // 初始挂载
         setupBottomPanelEvents();
 
-        // 全屏状态改变时强制触发重新挂载，100ms延迟保障浏览器底层渲染已就位
+        // 当全屏状态被切换时，强制重置菜单手势事件（确保绝对不失效）
         document.addEventListener('fullscreenchange', () => {
-            setTimeout(() => {
-                setupBottomPanelEvents();
-            }, 150);
-            
-            if (!document.fullscreenElement) {
-                bindFullscreenEvents();
-            }
+            setTimeout(() => { setupBottomPanelEvents(); }, 120);
+            if (!document.fullscreenElement) { bindFullscreenEvents(); }
         });
     </script>
 </body>
