@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>tudou</title>
+    <title>保安策略</title>
     <style>
         * {
             margin: 0;
@@ -16,25 +16,15 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
+            background: #000; /* 物理横屏时的底色（如果是非标准比例留出的边） */
             color: #ffffff;
             user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* 核心兜底：如果手机进入横屏，强制用CSS旋转将其布局"扶正"为竖屏视觉 */
-        @media (orientation: landscape) {
-            body {
-                transform: rotate(-90deg) translateX(-100%);
-                transform-origin: 0 0;
-                width: 100vh;
-                height: 100vw;
-                position: absolute;
-                top: 0;
-                left: 0;
-                margin: 0;
-            }
-        }
-
+        /* 核心容器：背景放置在容器内，确保旋转时背景也跟着转，不会错位 */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -42,6 +32,24 @@
             width: 100vw;
             position: relative;
             justify-content: space-between;
+            /* 背景渐变色转移到这里 */
+            background: linear-gradient(180deg, #87d6cc 0%, #439485 30%, #16574c 100%);
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* 物理横屏时的兜底(解决横屏变形、宽高比例问题) */
+        @media (orientation: landscape) {
+            body {
+                background: #000; /* 两边的黑边 */
+            }
+            .app-container {
+                /* 将竖屏设计完美旋转90度，宽高互换，比例完全一致，无拉伸 */
+                width: 100vh;
+                height: 100vw;
+                transform: rotate(-90deg);
+                transform-origin: center center;
+            }
         }
 
         /* 顶部区域 */
@@ -314,7 +322,7 @@
         function safeFullscreen() {
             const el = document.documentElement;
             
-            // 核心改动：先请求竖屏锁定，再请求全屏
+            // 先请求竖屏锁定，再请求全屏（防止屏幕翻转）
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait')
                     .then(() => {
@@ -325,7 +333,7 @@
                         }
                     })
                     .catch(() => {
-                        // 锁定失败的回退：直接全屏，配合CSS横屏兜底机制
+                        // 锁定失败的回退（配合CSS兜底，保证比例不变）
                         if (el.requestFullscreen) {
                             el.requestFullscreen();
                         } else if (el.webkitRequestFullscreen) {
@@ -341,11 +349,11 @@
             }
         }
 
-        // 只有单击/触碰才触发全屏（满足现代浏览器安全策略）
+        // 用户点击/触碰时才触发（满足浏览器安全策略）
         document.addEventListener('touchstart', safeFullscreen, { once: true });
         document.addEventListener('click', safeFullscreen, { once: true });
 
-        // 额外修补：如果用户意外退出全屏，重新绑定一次触摸监听
+        // 如果用户通过手势退出全屏，重新绑定一次触摸监听
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.addEventListener('touchstart', safeFullscreen, { once: true });
