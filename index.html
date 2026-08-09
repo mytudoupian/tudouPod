@@ -255,10 +255,7 @@
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            document.getElement
-                
-            
-            ById('clock-display').textContent = `${h}:${m}:${s}`;
+            document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
             document.getElementById('fake-clock').textContent = `${h}:${m}`; 
             
             const year = now.getFullYear(); const month = now.getMonth() + 1; const day = now.getDate();
