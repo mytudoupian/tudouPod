@@ -12,9 +12,28 @@
             color: #ffffff; user-select: none; display: flex; justify-content: center; align-items: center;
         }
 
-        /* 模拟系统状态栏：始终悬浮在顶部 */
+        .app-container {
+            display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative;
+            justify-content: space-between; 
+            background: linear-gradient(180deg, #87d6cc 0%, #439485 35%, #16574c 100%);
+            background-size: cover; background-position: center; overflow: hidden;
+            /* 为模拟状态栏预留高度，避免顶部文字被遮挡 */
+            padding-top: 42px; 
+            /* 提前加环境安全区适配 */
+            padding-top: calc(env(safe-area-inset-top) + 42px);
+        }
+
+        /* 物理横屏兜底 (状态栏现在位于容器内，会随容器一起旋转，彻底解决错位) */
+        @media (orientation: landscape) {
+            body { background: #000; }
+            .app-container { width: 100vh; height: 100vw; transform: rotate(-90deg); transform-origin: center center; }
+        }
+
+        /* ==========================================
+           核心修改：模拟系统状态栏移至容器内
+           ========================================== */
         .fake-status-bar {
-            position: fixed;
+            position: absolute;
             top: 0; left: 0;
             width: 100%;
             height: 42px;
@@ -22,14 +41,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 16px;
-            /* 背景透明，绝不遮挡你的背景渐变 */
+            /* 保持透明底色，不影响背景渐变 */
             background: transparent;
             color: #ffffff;
             z-index: 9999;
             font-size: 14px;
             font-weight: 500;
-            pointer-events: none; /* 让点击穿透到下方触发全屏 */
-            padding-top: env(safe-area-inset-top);
+            /* 让点击穿透到下方触发全屏 */
+            pointer-events: none; 
         }
 
         /* 左右图标容器 */
@@ -39,7 +58,6 @@
             gap: 6px;
         }
 
-        /* 电池图标样式 */
         .battery-wrap {
             display: flex;
             align-items: center;
@@ -71,45 +89,22 @@
             background: #fff;
             border-radius: 1px;
         }
-        .battery-text {
-            font-size: 11px;
-        }
+        .battery-text { font-size: 11px; }
         
-        /* 信号图标样式 */
         .signal-icon {
-            display: flex;
-            align-items: flex-end;
-            gap: 2px;
-            height: 12px;
+            display: flex; align-items: flex-end; gap: 2px; height: 12px;
         }
         .signal-bar {
-            width: 3px;
-            background: #fff;
-            border-radius: 1px;
+            width: 3px; background: #fff; border-radius: 1px;
         }
         .signal-bar:nth-child(1) { height: 3px; }
         .signal-bar:nth-child(2) { height: 6px; }
         .signal-bar:nth-child(3) { height: 9px; }
         .signal-bar:nth-child(4) { height: 12px; }
 
-        .app-container {
-            display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative;
-            justify-content: space-between; 
-            background: linear-gradient(180deg, #87d6cc 0%, #439485 35%, #16574c 100%);
-            background-size: cover; background-position: center; overflow: hidden;
-            /* 为模拟状态栏预留高度，避免遮挡 */
-            padding-top: 42px; 
-        }
-
-        /* 物理横屏兜底 */
-        @media (orientation: landscape) {
-            body { background: #000; }
-            .app-container { width: 100vh; height: 100vw; transform: rotate(-90deg); transform-origin: center center; }
-        }
-
-        /* 顶部区域 */
+        /* 顶部区域 (使用 padding 避开状态栏高度) */
         .top-area { 
-            padding: calc(25px) 20px 0; /* 已减去模拟状态栏占用的空间 */
+            padding: 25px 20px 0; 
             display: flex; flex-direction: column; align-items: center; width: 100%; flex-shrink: 0; z-index: 2; 
         }
         .top-msg { width: 100%; max-width: 100%; overflow: hidden; white-space: nowrap; background: rgba(0, 0, 0, 0.12); border-radius: 20px; padding: 8px 0; box-sizing: border-box; margin-bottom: 20px; }
@@ -187,28 +182,30 @@
     </style>
 </head>
 <body>
-    <!-- 新增：模拟系统顶部状态栏 -->
-    <div class="fake-status-bar">
-        <div class="status-left">
-            <span id="fake-clock">17:34</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        </div>
-        <div class="status-right">
-            <span>5G</span>
-            <div class="signal-icon">
-                <div class="signal-bar"></div>
-                <div class="signal-bar"></div>
-                <div class="signal-bar"></div>
-                <div class="signal-bar"></div>
-            </div>
-            <div class="battery-wrap">
-                <div class="battery-icon"><div class="battery-fill"></div></div>
-                <span class="battery-text" id="fake-battery">58</span>
-            </div>
-        </div>
-    </div>
-
     <div class="app-container">
+        
+        <!-- 新增：模拟系统顶部状态栏 (绝对定位于容器内，随内容旋转) -->
+        <div class="fake-status-bar">
+            <div class="status-left">
+                <span id="fake-clock">17:34</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </div>
+            <div class="status-right">
+                <span>5G</span>
+                <div class="signal-icon">
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                </div>
+                <div class="battery-wrap">
+                    <div class="battery-icon"><div class="battery-fill"></div></div>
+                    <span class="battery-text" id="fake-battery">58</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 顶部区域 -->
         <div class="top-area">
             <div class="top-msg"><span class="scroll-text">已完成 Help Desk 电话号码的修改。</span></div>
             <div class="brand-name">SΛMSUNG</div>
@@ -253,24 +250,21 @@
     </div>
 
     <script>
-        // 同步更新系统时间与模拟状态栏时间
+        // 1. 系统时钟与日期自动更新
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            
             document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
-            document.getElementById('fake-clock').textContent = `${h}:${m}`; // 模拟状态栏时间
+            document.getElementById('fake-clock').textContent = `${h}:${m}`; // 同步模拟状态栏时间
             
             const year = now.getFullYear(); const month = now.getMonth() + 1; const day = now.getDate();
             document.getElementById('date-display').textContent = `${year}年${month}月${day}日`;
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // ==========================================
-        // 全屏交互恢复：单击立刻全屏，沉浸模式
-        // ==========================================
+        // 2. 全屏交互：点击任意位置触发沉浸式全屏 (保留导航栏回避状态栏)
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
@@ -297,6 +291,7 @@
         }
         bindFullscreenEvents();
 
+        // 3. 底部菜单手势重构（兼容上下/左右旋转手势）
         function setupBottomPanelEvents() {
             const bottomPanel = document.getElementById('bottomPanel');
             if (!bottomPanel) return;
@@ -359,6 +354,7 @@
 
         setupBottomPanelEvents();
 
+        // 全屏状态改变时，重试绑定手势（防失效）
         document.addEventListener('fullscreenchange', () => {
             setTimeout(() => { setupBottomPanelEvents(); }, 120);
             if (!document.fullscreenElement) { bindFullscreenEvents(); }
