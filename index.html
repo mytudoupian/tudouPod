@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>tudou</title>
+    <title>5</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -17,7 +17,7 @@
             justify-content: space-between; 
             background: linear-gradient(180deg, #87d6cc 0%, #439485 35%, #16574c 100%);
             background-size: cover; background-position: center; overflow: hidden;
-            /* 核心修改：预留顶部安全区域，防止状态栏遮挡内容 */
+            /* 安全区域预留：全面屏手机状态栏不遮挡内容 */
             padding-top: env(safe-area-inset-top, 0px); 
         }
 
@@ -28,7 +28,6 @@
         }
 
         /* 顶部区域 */
-        /* 调整 padding-top，确保顶部文字不与状态栏重叠 */
         .top-area { 
             padding: calc(25px + env(safe-area-inset-top)) 20px 0; 
             display: flex; flex-direction: column; align-items: center; width: 100%; flex-shrink: 0; z-index: 2; 
@@ -76,17 +75,17 @@
             position: absolute; bottom: 25px; left: 0; width: 100%; pointer-events: auto;
             text-align: center; font-size: 12px; color: #a0cdc1; font-weight: 300; 
             z-index: 10;
-            transition: opacity 0.3s ease; /* 保持你的过渡动画 */
+            transition: opacity 0.3s ease;
         }
 
-        /* 菜单展开时隐藏版本号 */
+        /* 菜单展开时版本号淡出 */
         .bottom-area.open .version { opacity: 0; }
 
+        /* ! 修复：解决了 bottom:110px 与 transform 位移 125px 不一致的问题 */
         .menu-slider { 
             position: absolute; bottom: 110px; 
             left: 0; width: 100%; pointer-events: auto;
-            /* 修复：让 transform 的偏移量与 bottom 保持一致 */
-            transform: translateY(calc(100% + 110px)); 
+            transform: translateY(calc(100% + 110px)); /* 已同步修正为110px */
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
             z-index: 5;
@@ -165,10 +164,7 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // ==========================================
-        // 核心修改 1：在触发全屏时添加 navigationUI: 'show' 
-        // 让系统保留顶部的状态栏显示，不遮挡网页内容
-        // ==========================================
+        // 全屏触发：保留顶部状态栏 (navigationUI: 'show')
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
