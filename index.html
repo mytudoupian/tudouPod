@@ -85,7 +85,7 @@
             border-radius: 1px;
             transition: width 0.3s ease; /* 电量变化平滑过渡 */
         }
-        .battery-text { font-size: 11px; }
+        .battery-text { font-size: 11px; min-width: 20px; text-align: right; }
         
         .signal-icon {
             display: flex; align-items: flex-end; gap: 2px; height: 12px;
@@ -199,7 +199,7 @@
                         <!-- 动态宽度的电池填充层 -->
                         <div class="battery-fill" id="battery-fill-inner" style="width: 60%;"></div>
                     </div>
-                    <span class="battery-text" id="real-battery">58</span>
+                    <span class="battery-text" id="real-battery">58%</span>
                 </div>
             </div>
         </div>
@@ -263,10 +263,10 @@
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 2. 获取并监听真实电量
+        // 2. 获取并监听真实电量（已修复文本拼接错误）
         function initBatteryMonitor() {
             const batteryFillInner = document.getElementById('battery-fill-inner');
-            const batteryText = document.getElementById('real-battery')+'%';
+            const batteryText = document.getElementById('real-battery');
 
             // 检测浏览器是否支持 Battery API
             if (navigator.getBattery) {
@@ -275,9 +275,9 @@
                     function updateBatteryStatus() {
                         // 获取电量百分比 (0 ~ 1)
                         let level = Math.round(battery.level * 100);
-                        // 更新 UI
+                        // 更新 UI，拼接 %
                         batteryFillInner.style.width = level + '%';
-                        batteryText.textContent = level;
+                        batteryText.textContent = level + '%';
                     }
 
                     // 首次执行
@@ -285,19 +285,18 @@
 
                     // 监听电量变化事件
                     battery.addEventListener('levelchange', updateBatteryStatus);
-                    // 部分浏览器还会触发 chargingchange 事件，可选监听
                     battery.addEventListener('chargingchange', updateBatteryStatus);
                 }).catch(function(error) {
                     console.warn("获取真实电量失败（可能是不支持或权限被拒），使用默认静态值:", error);
-                    // 优雅降级：如果 API 获取失败，维持初始化的 58%（或设置随机值）
+                    // 优雅降级：如果 API 获取失败
                     batteryFillInner.style.width = '58%';
-                    batteryText.textContent = '58';
+                    batteryText.textContent = '58%';
                 });
             } else {
                 console.warn("浏览器不支持 navigator.getBattery，使用默认值。");
                 // 优雅降级
                 batteryFillInner.style.width = '58%';
-                batteryText.textContent = '58';
+                batteryText.textContent = '58%';
             }
         }
 
