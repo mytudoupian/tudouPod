@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>5</title>
+    <title>tudou</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -12,13 +12,93 @@
             color: #ffffff; user-select: none; display: flex; justify-content: center; align-items: center;
         }
 
+        /* 模拟系统状态栏：始终悬浮在顶部 */
+        .fake-status-bar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 42px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            /* 背景透明，绝不遮挡你的背景渐变 */
+            background: transparent;
+            color: #ffffff;
+            z-index: 9999;
+            font-size: 14px;
+            font-weight: 500;
+            pointer-events: none; /* 让点击穿透到下方触发全屏 */
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* 左右图标容器 */
+        .status-left, .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 电池图标样式 */
+        .battery-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .battery-icon {
+            width: 22px;
+            height: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            padding: 1px;
+            position: relative;
+        }
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 3px;
+            width: 2px;
+            height: 4px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 1px;
+        }
+        .battery-fill {
+            width: 60%; /* 模拟60%电量 */
+            height: 100%;
+            background: #fff;
+            border-radius: 1px;
+        }
+        .battery-text {
+            font-size: 11px;
+        }
+        
+        /* 信号图标样式 */
+        .signal-icon {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 12px;
+        }
+        .signal-bar {
+            width: 3px;
+            background: #fff;
+            border-radius: 1px;
+        }
+        .signal-bar:nth-child(1) { height: 3px; }
+        .signal-bar:nth-child(2) { height: 6px; }
+        .signal-bar:nth-child(3) { height: 9px; }
+        .signal-bar:nth-child(4) { height: 12px; }
+
         .app-container {
             display: flex; flex-direction: column; height: 100vh; width: 100vw; position: relative;
             justify-content: space-between; 
             background: linear-gradient(180deg, #87d6cc 0%, #439485 35%, #16574c 100%);
             background-size: cover; background-position: center; overflow: hidden;
-            /* 安全区域预留：全面屏手机状态栏不遮挡内容 */
-            padding-top: env(safe-area-inset-top, 0px); 
+            /* 为模拟状态栏预留高度，避免遮挡 */
+            padding-top: 42px; 
         }
 
         /* 物理横屏兜底 */
@@ -29,7 +109,7 @@
 
         /* 顶部区域 */
         .top-area { 
-            padding: calc(25px + env(safe-area-inset-top)) 20px 0; 
+            padding: calc(25px) 20px 0; /* 已减去模拟状态栏占用的空间 */
             display: flex; flex-direction: column; align-items: center; width: 100%; flex-shrink: 0; z-index: 2; 
         }
         .top-msg { width: 100%; max-width: 100%; overflow: hidden; white-space: nowrap; background: rgba(0, 0, 0, 0.12); border-radius: 20px; padding: 8px 0; box-sizing: border-box; margin-bottom: 20px; }
@@ -81,11 +161,10 @@
         /* 菜单展开时版本号淡出 */
         .bottom-area.open .version { opacity: 0; }
 
-        /* ! 修复：解决了 bottom:110px 与 transform 位移 125px 不一致的问题 */
         .menu-slider { 
             position: absolute; bottom: 110px; 
             left: 0; width: 100%; pointer-events: auto;
-            transform: translateY(calc(100% + 110px)); /* 已同步修正为110px */
+            transform: translateY(calc(100% + 110px));
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             padding: 20px 0 0;
             z-index: 5;
@@ -108,6 +187,27 @@
     </style>
 </head>
 <body>
+    <!-- 新增：模拟系统顶部状态栏 -->
+    <div class="fake-status-bar">
+        <div class="status-left">
+            <span id="fake-clock">17:34</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </div>
+        <div class="status-right">
+            <span>5G</span>
+            <div class="signal-icon">
+                <div class="signal-bar"></div>
+                <div class="signal-bar"></div>
+                <div class="signal-bar"></div>
+                <div class="signal-bar"></div>
+            </div>
+            <div class="battery-wrap">
+                <div class="battery-icon"><div class="battery-fill"></div></div>
+                <span class="battery-text" id="fake-battery">58</span>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <div class="top-area">
             <div class="top-msg"><span class="scroll-text">已完成 Help Desk 电话号码的修改。</span></div>
@@ -153,40 +253,40 @@
     </div>
 
     <script>
+        // 同步更新系统时间与模拟状态栏时间
         function updateTimeAndDate() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
+            
             document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
+            document.getElementById('fake-clock').textContent = `${h}:${m}`; // 模拟状态栏时间
+            
             const year = now.getFullYear(); const month = now.getMonth() + 1; const day = now.getDate();
             document.getElementById('date-display').textContent = `${year}年${month}月${day}日`;
         }
         updateTimeAndDate(); setInterval(updateTimeAndDate, 1000);
 
-        // 全屏触发：保留顶部状态栏 (navigationUI: 'show')
+        // ==========================================
+        // 全屏交互恢复：单击立刻全屏，沉浸模式
+        // ==========================================
         function safeFullscreen() {
             const el = document.documentElement;
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait').then(() => { 
                     if (el.requestFullscreen) {
-                        el.requestFullscreen({ navigationUI: 'show' }).catch(() => {
-                            el.requestFullscreen(); // 降级处理
-                        });
+                        el.requestFullscreen().catch(() => { el.requestFullscreen(); });
                     }
                 })
                 .catch(() => { 
                     if (el.requestFullscreen) {
-                        el.requestFullscreen({ navigationUI: 'show' }).catch(() => {
-                            el.requestFullscreen();
-                        });
+                        el.requestFullscreen().catch(() => { el.requestFullscreen(); });
                     }
                 });
             } else { 
                 if (el.requestFullscreen) {
-                    el.requestFullscreen({ navigationUI: 'show' }).catch(() => {
-                        el.requestFullscreen();
-                    });
+                    el.requestFullscreen().catch(() => { el.requestFullscreen(); });
                 }
             }
         }
