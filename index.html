@@ -266,7 +266,7 @@
         // 2. 获取并监听真实电量
         function initBatteryMonitor() {
             const batteryFillInner = document.getElementById('battery-fill-inner');
-            const batteryText = document.getElementById('real-battery');
+            const batteryText = document.getElementById('real-battery')+'%';
 
             // 检测浏览器是否支持 Battery API
             if (navigator.getBattery) {
